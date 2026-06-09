@@ -237,6 +237,14 @@ html,body{height:100%;font-family:var(--font-b);background:var(--purple);overflo
 @keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
 @keyframes winnerPulse{0%,100%{text-shadow:0 0 20px rgba(255,200,54,.4);}50%{text-shadow:0 0 40px rgba(255,200,54,.9);}}
 @keyframes countdownPop{from{transform:scale(3);opacity:0;}to{transform:scale(1);opacity:1;}}
+@keyframes podiumRise{to{transform:translateY(0);opacity:1;}}
+
+/* ─── ENHANCEMENTS ──────────────────────────────────────────────────────────── */
+.host-opt-text { flex: 1; font-family: var(--font-b); font-size: .85rem; color: #fff; margin-left: 8px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: color 0.3s; }
+.host-opt-text.reveal-correct { color: #FFC836; font-weight: 900; text-shadow: 0 0 10px rgba(255,200,54,0.5); }
+.podium-col { animation: podiumRise 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; transform: translateY(50px); }
+.score-row { transition: transform 0.2s, box-shadow 0.2s; }
+.score-row:hover { transform: scale(1.02); box-shadow: 0 4px 15px rgba(255, 200, 54, 0.2); z-index: 2; position: relative; }
 
 /* ─── RESPONSIVE ────────────────────────────────────────────────────────────── */
 @media(max-width:600px){
@@ -419,12 +427,13 @@ html,body{height:100%;font-family:var(--font-b);background:var(--purple);overflo
       </div>
     </div>
     <div class="ans-bar-wrap" id="host-ans-bars">
-      <div class="ans-bar-row"><div class="ans-bar-label" style="color:#1368CE;">▲</div><div class="ans-bar-track"><div class="ans-bar-fill" id="bar-0" style="width:0%;background:#1368CE;"></div></div></div>
-      <div class="ans-bar-row"><div class="ans-bar-label" style="color:#E21B3C;">◆</div><div class="ans-bar-track"><div class="ans-bar-fill" id="bar-1" style="width:0%;background:#E21B3C;"></div></div></div>
-      <div class="ans-bar-row"><div class="ans-bar-label" style="color:#FFA602;">●</div><div class="ans-bar-track"><div class="ans-bar-fill" id="bar-2" style="width:0%;background:#FFA602;"></div></div></div>
-      <div class="ans-bar-row"><div class="ans-bar-label" style="color:#26890C;">■</div><div class="ans-bar-track"><div class="ans-bar-fill" id="bar-3" style="width:0%;background:#26890C;"></div></div></div>
+      <div class="ans-bar-row"><div class="ans-bar-label" style="color:#1368CE;">▲</div><div class="host-opt-text" id="host-opt-0"></div><div class="ans-bar-track"><div class="ans-bar-fill" id="bar-0" style="width:0%;background:#1368CE;"></div></div></div>
+      <div class="ans-bar-row"><div class="ans-bar-label" style="color:#E21B3C;">◆</div><div class="host-opt-text" id="host-opt-1"></div><div class="ans-bar-track"><div class="ans-bar-fill" id="bar-1" style="width:0%;background:#E21B3C;"></div></div></div>
+      <div class="ans-bar-row"><div class="ans-bar-label" style="color:#FFA602;">●</div><div class="host-opt-text" id="host-opt-2"></div><div class="ans-bar-track"><div class="ans-bar-fill" id="bar-2" style="width:0%;background:#FFA602;"></div></div></div>
+      <div class="ans-bar-row"><div class="ans-bar-label" style="color:#26890C;">■</div><div class="host-opt-text" id="host-opt-3"></div><div class="ans-bar-track"><div class="ans-bar-fill" id="bar-3" style="width:0%;background:#26890C;"></div></div></div>
     </div>
     <div class="host-controls">
+      <button class="btn btn-purple btn-sm" onclick="toggleHostAnswer()" id="host-ans-toggle-btn" style="flex:1;padding:12px;">👁 Show Answer</button>
       <button class="btn btn-yellow btn-sm" onclick="skipTimer()" style="flex:1;padding:12px;">⏩ Skip Timer</button>
       <button class="btn btn-red btn-sm" onclick="hostEndGame()" style="flex:1;padding:12px;">⏹ End Game</button>
     </div>
@@ -581,6 +590,26 @@ let myStreak=0,myScore=0,myCorrect=0,myWrong=0;
 let powerups={fifty:true,time:true,skip:true};
 let pendingKickId=null,pendingRenameId=null;
 let answerDistribution={};
+let hostAnswerRevealed=false;
+
+function toggleHostAnswer() {
+  if (!isHost || questions.length === 0) return;
+  hostAnswerRevealed = !hostAnswerRevealed;
+  const q = questions[currentQ];
+  const btn = document.getElementById('host-ans-toggle-btn');
+  if (btn) btn.textContent = hostAnswerRevealed ? '🙈 Hide Answer' : '👁 Show Answer';
+  
+  [0, 1, 2, 3].forEach(i => {
+    const el = document.getElementById('host-opt-'+i);
+    if (el) {
+      if (hostAnswerRevealed && i === q.correct) {
+        el.classList.add('reveal-correct');
+      } else {
+        el.classList.remove('reveal-correct');
+      }
+    }
+  });
+}
 
 // ─── UTILS ────────────────────────────────────────────────────────────────────
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
@@ -830,7 +859,17 @@ function showQuestion(idx){
     document.getElementById('qnum-host').textContent=`Q ${idx+1}/${questions.length}`;
     document.getElementById('q-text-host').textContent=q.question;
     document.getElementById('answers-count').textContent='0 answered';
-    [0,1,2,3].forEach(i=>{document.getElementById('bar-'+i).style.width='0%';document.getElementById('bar-'+i).textContent='';});
+    hostAnswerRevealed = false;
+    document.getElementById('host-ans-toggle-btn').textContent = '👁 Show Answer';
+    [0,1,2,3].forEach(i=>{
+      document.getElementById('bar-'+i).style.width='0%';
+      document.getElementById('bar-'+i).textContent='';
+      const optEl = document.getElementById('host-opt-'+i);
+      if (optEl) {
+        optEl.textContent = q.answers[i];
+        optEl.classList.remove('reveal-correct');
+      }
+    });
     dbSet(`rooms/${roomCode}/answersCount`,0);
     dbSet(`rooms/${roomCode}/answerDist`,{0:0,1:0,2:0,3:0});
     dbListen(`rooms/${roomCode}/answersCount`,(c)=>{document.getElementById('answers-count').textContent=`${c||0} answered`;});
@@ -1001,7 +1040,7 @@ function showLeaderboard(room,hostMode){
   document.getElementById('lb-subtitle').textContent=`After Question ${(room.currentQ||0)+1} of ${questions.length}`;
   const wrap=document.getElementById('scoreboard-mid');
   wrap.innerHTML=plist.map((p,i)=>`
-    <div class="score-row ${i===0?'top':''}">
+    <div class="score-row ${i===0?'top':''}" style="animation-delay:${i*0.15}s; animation-fill-mode:both;">
       <span class="rank-badge">${MEDALS[i]||`#${i+1}`}</span>
       <div style="font-size:1.2rem;">${p.avatar||'🎮'}</div>
       <span class="score-name">${p.name}${p.streak>=2?` <span style="color:#FFA602;font-size:.75rem;">🔥${p.streak}</span>`:''}</span>
@@ -1042,9 +1081,11 @@ function showFinalResults(players){
   const top=plist.slice(0,3);
   const order=top.length>=3?[top[1],top[0],top[2]]:(top.length===2?[top[1],top[0]]:top);
   const heights=[80,112,60];
+  const delays=[1.5, 2.5, 0.5];
   podium.innerHTML=order.map((p,i)=>{
     const realRank=plist.indexOf(p);const h=top.length>=3?heights[i]:112;
-    return `<div class="podium-col">
+    const delay = top.length>=3 ? delays[i] : (i===0? 1.5 : 2.5);
+    return `<div class="podium-col" style="animation-delay:${delay}s">
       <div style="font-size:.9rem;">${MEDALS[realRank]||''}</div>
       <div style="font-size:2rem;">${p.avatar||'🎮'}</div>
       <div class="podium-name">${p.name}</div>

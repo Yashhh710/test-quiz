@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>QuizBlast - Multiplayer Quiz</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght=700;800;900&family=Nunito+Sans:wght=400;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
   --bg:#1a1a2e;--surface:#16213e;--card:#0f3460;
@@ -75,11 +75,6 @@ label{font-size:.82rem;color:var(--muted);font-weight:700;display:block;margin-t
 .shimmer{background:linear-gradient(90deg,rgba(255,255,255,.03) 0%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.03) 100%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px;height:18px;margin:5px 0;}
 @keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
 select option{background:#1a1a2e;}
-.topbar{width:100%;background:rgba(15,52,96,.6);border-bottom:1px solid rgba(255,255,255,.08);padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.topbar>span{font-size:.82rem;color:#f4a261;font-weight:700;white-space:nowrap;}
-.topbar input{flex:1;min-width:160px;padding:7px 12px;font-size:.82rem;margin-top:0;border-radius:8px;}
-.key-status{font-size:.76rem;color:var(--muted);white-space:nowrap;}
-.key-status.ok{color:#2a9d8f;}
 .method-tabs{display:flex;gap:8px;margin-bottom:1rem;}
 .method-tab{flex:1;padding:10px;border-radius:12px;border:1.5px solid rgba(255,255,255,.1);background:transparent;color:var(--muted);font-family:var(--font-h);font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s;text-align:center;}
 .method-tab.active{border-color:#e63946;background:rgba(230,57,70,.1);color:#e63946;}
@@ -97,16 +92,12 @@ select option{background:#1a1a2e;}
 </head>
 <body>
 
-<div class="topbar">
-  <span>⚡ Generation Mode:</span>
-  <span class="key-status ok" id="key-status">Groq Engine Active</span>
-</div>
-
 <div id="screen-home" class="screen active">
-  <div style="text-align:center;padding-top:22px;margin-bottom:1rem;">
+  <div style="text-align:center;padding-top:40px;margin-bottom:1.5rem;">
     <div class="logo">⚡ QuizBlast</div>
-    <div class="tagline">Real-time multiplayer quiz — powered by Groq!</div>
+    <div class="tagline">Real-time multiplayer quiz — powered by Groq Llama 3.3</div>
   </div>
+  
   <div class="tab-bar" style="max-width:520px;width:100%;">
     <button class="tab active" onclick="switchTab('host',this)">🎮 Host Game</button>
     <button class="tab" onclick="switchTab('join',this)">🙋 Join Game</button>
@@ -119,7 +110,7 @@ select option{background:#1a1a2e;}
     </div>
     <div id="mode-ai">
       <label>Quiz topic</label>
-      <input type="text" id="host-topic" placeholder="e.g. Bollywood, Cricket, Science, History..." />
+      <input type="text" id="host-topic" placeholder="e.g. Bollywood, Cricket, Science, Tech..." />
       <label>Number of questions</label>
       <select id="host-qcount">
         <option value="5">5 questions</option>
@@ -288,7 +279,7 @@ select option{background:#1a1a2e;}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-// ─── CONFIG ───────────────────────────────────────────────────────────────────
+// ─── CONFIG (HARDCODED) ───────────────────────────────────────────────────────
 const FB_URL = 'https://quiz-8016d-default-rtdb.asia-southeast1.firebasedatabase.app';
 const GROQ_KEY = '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';
 
@@ -390,7 +381,7 @@ function getManualQuestions() {
   return qs;
 }
 
-// ─── AI GENERATOR (UPDATED FOR GROQ) ──────────────────────────────────────────
+// ─── AI GENERATOR (GROQ ENGINE) ───────────────────────────────────────────────
 async function generateQuestions(topic, count, difficulty, key) {
   const prompt = `Generate a JSON object containing exactly ${count} multiple choice quiz questions about "${topic}" at a ${difficulty} difficulty level.
 Return ONLY a valid JSON object matching this structural design precisely without markdown code wrappers, comments, formatting breaks, or extra text:
@@ -419,7 +410,7 @@ Note: "correct" must be the index (0, 1, 2, or 3) of the true answer within the 
     })
   });
 
-  if (!response.ok) throw new Error('API network response issue.');
+  if (!response.ok) throw new Error('API server returned an error.');
   const data = await response.json();
   let txt = data.choices?.[0]?.message?.content || '';
   const parsed = JSON.parse(txt.trim());
@@ -447,7 +438,7 @@ async function hostGame() {
         document.getElementById('host-difficulty').value, GROQ_KEY);
     } catch(e) {
       show('screen-home');
-      err.textContent='❌ '+(e.message||'Generation failed. Check API key configuration.');
+      err.textContent='❌ '+(e.message||'Generation failed. Verify connection settings.');
       return;
     }
   }
@@ -512,7 +503,7 @@ async function joinGame() {
     listenAsPlayer();
   } catch(e) {
     err.style.color='#e63946';
-    err.textContent='Error: '+(e.message||'Could not connect. Check dynamic connection.');
+    err.textContent='Error: '+(e.message||'Could not connect. Check network configuration.');
   }
 }
 

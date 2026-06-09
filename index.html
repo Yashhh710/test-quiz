@@ -285,6 +285,7 @@ html,body{height:100%;font-family:var(--font-b);background:var(--purple);overflo
         <button class="method-tab" onclick="setMethod('manual',this)">✏️ Manual</button>
       </div>
       <div id="mode-ai">
+        <div class="field"><label>API Key (Groq)</label><input type="password" id="host-api-key" placeholder="Enter Groq API Key (Optional)"></div>
         <div class="field"><label>Quiz Topic</label><input type="text" id="host-topic" placeholder="e.g. Bollywood, Cricket, Science…"></div>
         <div class="field"><label>Questions</label>
           <select id="host-qcount">
@@ -697,9 +698,10 @@ async function hostGame(){
     if(qs.length<2){document.getElementById('manual-error').textContent='Add at least 2 complete questions.';return;}
   } else {
     const topic=document.getElementById('host-topic').value.trim();
+    const customKey=document.getElementById('host-api-key').value.trim() || GROQ_KEY;
     if(!topic){err.textContent='Please enter a topic!';return;}
     document.getElementById('gen-topic').textContent=topic;show('screen-generating');
-    try{qs=await generateQuestions(topic,document.getElementById('host-qcount').value,document.getElementById('host-difficulty').value,GROQ_KEY);}
+    try{qs=await generateQuestions(topic,document.getElementById('host-qcount').value,document.getElementById('host-difficulty').value,customKey);}
     catch(e){show('screen-home');err.textContent='❌ '+(e.message||'Generation failed.');return;}
   }
   questions=qs;timePerQ=tpq;isHost=true;roomCode=genCode();myId='host';myName='Host';

@@ -571,6 +571,13 @@ function soundCountdown(){playTone(330,'sine',.1,.2);}
 function soundWinner(){
   [523,659,784,1047].forEach((f,i)=>playTone(f,'sine',.2,.3,i*.15));
 }
+function speakText(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US';
+  window.speechSynthesis.speak(u);
+}
 
 // ─── FIREBASE ─────────────────────────────────────────────────────────────────
 async function dbSet(p,v){await fetch(`${FB_URL}/${p}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(v)});}
@@ -777,10 +784,12 @@ function showCountdown(cb){
   const el=document.createElement('div');el.className='countdown-burst';
   el.innerHTML=`<div class="burst-num" id="cd-num">3</div>`;
   document.body.appendChild(el);let n=3;soundCountdown();
+  speakText("3");
   const tick=()=>{
     n--;
     if(n<=0){document.body.removeChild(el);cb();return;}
     soundCountdown();
+    speakText(n.toString());
     const d=el.querySelector('#cd-num');d.textContent=n;
     d.style.animation='none';d.offsetHeight;d.style.animation='burstIn .4s ease';
     setTimeout(tick,900);
@@ -876,7 +885,16 @@ function showQuestion(idx){
     });
     dbSet(`rooms/${roomCode}/answersCount`,0);
     dbSet(`rooms/${roomCode}/answerDist`,{0:0,1:0,2:0,3:0});
-    dbListen(`rooms/${roomCode}/answersCount`,(c)=>{document.getElementById('answers-count').textContent=`${c||0} answered`;});
+    dbListen(`rooms/${roomCode}/answersCount`, async (c)=>{
+      document.getElementById('answers-count').textContent=`${c||0} answered`;
+      if(c && c > 0) {
+        const room = await dbGet(`rooms/${roomCode}`);
+        const pCount = room && room.players ? Object.keys(room.players).length : 0;
+        if(pCount > 0 && c >= pCount) {
+          skipTimer();
+        }
+      }
+    });
     dbListen(`rooms/${roomCode}/answerDist`,(dist)=>{if(!dist)return;updateBarChart(dist);});
   } else {
     show('screen-question-player');
@@ -901,6 +919,7 @@ function showQuestion(idx){
     sd.textContent=myStreak>=2?`🔥 ${myStreak}x`:'';
     document.getElementById('progress-player').style.width=((idx)/questions.length)*100+'%';
   }
+  speakText(q.question);
   updateTimerUI();
   timerInt=setInterval(()=>{
     timeLeft--;updateTimerUI();
@@ -985,9 +1004,14 @@ function showAnswerResult(isCorrect,idx,q){
     pts=1000+speedBonus+streakBonus;
     myStreak++;myCorrect++;myScore+=pts;
     soundCorrect();
+    speakText("Correct!");
   } else if(!skipped){
     myStreak=0;myWrong++;
     soundWrong();
+    if(timeout) speakText("Time's Up!");
+    else speakText("Wrong!");
+  } else {
+    speakText("Skipped!");
   }
   const ov=document.createElement('div');
   ov.className='ans-result-overlay '+(isCorrect?'ans-result-correct':timeout?'ans-result-timeout':'ans-result-wrong');
@@ -1078,7 +1102,9 @@ function showFinalResults(players){
   if(window._pendingOvClear){window._pendingOvClear();window._pendingOvClear=null;}
   show('screen-final');soundWinner();
   const plist=players?Object.values(players):[];plist.sort((a,b)=>b.score-a.score);
+  const winnerText = plist.length>0?`Game Over! ${plist[0].name} wins!`:'Game Over! No players.';
   document.getElementById('winner-name').textContent=plist.length>0?`👑 ${plist[0].name} wins with ${plist[0].score} pts!`:'No players.';
+  speakText(winnerText);
 
   // Podium
   const podium=document.getElementById('podium');

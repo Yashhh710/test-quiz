@@ -93,37 +93,17 @@ select option{background:#1a1a2e;}
 .q-del:hover{background:rgba(230,57,70,.25);}
 .live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#2a9d8f;margin-right:5px;animation:livepulse 1.5s infinite;}
 @keyframes livepulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.8);}}
-.setup-box{background:rgba(69,123,157,.1);border:1px solid rgba(69,123,157,.25);border-radius:14px;padding:14px;margin-bottom:14px;font-size:.84rem;line-height:1.7;color:#a8c8e8;}
-.setup-box strong{color:#f4a261;}
-.setup-box code{background:rgba(255,255,255,.1);padding:2px 6px;border-radius:5px;font-size:.8rem;}
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
 <div class="topbar">
   <span>🔑 Gemini Key</span>
   <input type="password" id="api-key-input" placeholder="AIza... (only needed for AI question generation)" oninput="saveKey()" />
   <span class="key-status" id="key-status">Not set</span>
   <a href="https://aistudio.google.com/app/apikey" target="_blank" style="font-size:.76rem;color:#457b9d;text-decoration:none;">Get key ↗</a>
-  <span style="margin-left:auto;font-size:.76rem;color:var(--muted);">🔥 Firebase DB:</span>
-  <input type="text" id="fb-url-input" placeholder="https://YOUR-PROJECT-default-rtdb.firebaseio.com"
-    style="min-width:260px;font-size:.76rem;" oninput="saveFbUrl()" />
 </div>
 
-<!-- SETUP NOTICE (shown if no DB URL) -->
-<div id="setup-notice" style="width:100%;max-width:560px;padding:20px 20px 0;">
-  <div class="setup-box">
-    <strong>⚡ One-time Firebase setup (free, 2 min):</strong><br>
-    1. Go to <a href="https://console.firebase.google.com" target="_blank" style="color:#f4a261;">console.firebase.google.com</a> → Create project (any name)<br>
-    2. Build → Realtime Database → Create database → Start in <strong>test mode</strong><br>
-    3. Copy the URL like <code>https://your-app-default-rtdb.firebaseio.com</code><br>
-    4. Paste it in the <strong>Firebase DB</strong> field above ↑<br>
-    Without it, the game works on one device only (AI generation still works).
-  </div>
-</div>
-
-<!-- HOME -->
 <div id="screen-home" class="screen active">
   <div style="text-align:center;padding-top:22px;margin-bottom:1rem;">
     <div class="logo">⚡ QuizBlast</div>
@@ -189,7 +169,6 @@ select option{background:#1a1a2e;}
   </div>
 </div>
 
-<!-- GENERATING -->
 <div id="screen-generating" class="screen">
   <div style="text-align:center;margin-top:60px;">
     <div style="font-size:3.5rem;margin-bottom:1rem;">🤖</div>
@@ -204,7 +183,6 @@ select option{background:#1a1a2e;}
   </div>
 </div>
 
-<!-- LOBBY -->
 <div id="screen-lobby" class="screen">
   <div style="text-align:center;width:100%;max-width:500px;">
     <div class="logo" style="font-size:1.6rem;">⚡ QuizBlast</div>
@@ -222,7 +200,6 @@ select option{background:#1a1a2e;}
   </div>
 </div>
 
-<!-- PLAYER WAIT -->
 <div id="screen-player-wait" class="screen">
   <div style="text-align:center;margin-top:60px;width:100%;max-width:400px;">
     <div style="font-size:3.5rem;margin-bottom:1rem;">⏳</div>
@@ -236,7 +213,6 @@ select option{background:#1a1a2e;}
   </div>
 </div>
 
-<!-- QUESTION HOST -->
 <div id="screen-question-host" class="screen">
   <div style="width:100%;max-width:720px;display:flex;flex-direction:column;align-items:center;">
     <div style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:.4rem;">
@@ -266,7 +242,6 @@ select option{background:#1a1a2e;}
   </div>
 </div>
 
-<!-- QUESTION PLAYER -->
 <div id="screen-question-player" class="screen">
   <div style="width:100%;max-width:720px;display:flex;flex-direction:column;align-items:center;">
     <div style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:.4rem;">
@@ -293,7 +268,6 @@ select option{background:#1a1a2e;}
   </div>
 </div>
 
-<!-- LEADERBOARD MID -->
 <div id="screen-leaderboard-mid" class="screen">
   <div style="width:100%;max-width:480px;text-align:center;">
     <h2 style="font-size:1.9rem;margin-bottom:.4rem;">🏆 Leaderboard</h2>
@@ -304,7 +278,6 @@ select option{background:#1a1a2e;}
   </div>
 </div>
 
-<!-- FINAL -->
 <div id="screen-final" class="screen">
   <div style="width:100%;max-width:480px;text-align:center;">
     <div class="winner-crown">🏆</div>
@@ -318,25 +291,14 @@ select option{background:#1a1a2e;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
-let FB_URL = localStorage.getItem('fb_url') || '';
+const FB_URL = 'https://quiz-8016d-default-rtdb.asia-southeast1.firebasedatabase.app';
 
-function saveFbUrl() {
-  FB_URL = document.getElementById('fb-url-input').value.trim().replace(/\/$/, '');
-  localStorage.setItem('fb_url', FB_URL);
-  document.getElementById('setup-notice').style.display = FB_URL ? 'none' : 'block';
-}
 function saveKey() {
   const k = document.getElementById('api-key-input').value.trim();
   document.getElementById('key-status').textContent = k.length>10?'✓ Set':'Not set';
   document.getElementById('key-status').className = k.length>10?'key-status ok':'key-status';
 }
 function getKey() { return document.getElementById('api-key-input').value.trim(); }
-
-// Init from localStorage
-if (FB_URL) {
-  document.getElementById('fb-url-input').value = FB_URL;
-  document.getElementById('setup-notice').style.display = 'none';
-}
 
 // ─── FIREBASE REST ────────────────────────────────────────────────────────────
 async function dbSet(path, val) {
@@ -436,11 +398,41 @@ function getManualQuestions() {
   return qs;
 }
 
+// ─── AI GENERATOR ─────────────────────────────────────────────────────────────
+async function generateQuestions(topic, count, difficulty, key) {
+  const prompt = `Generate a JSON object containing exactly ${count} multiple choice quiz questions about "${topic}" at a ${difficulty} difficulty level.
+Return ONLY a valid JSON object matching this structural design precisely without markdown code wrappers, comments, formatting breaks, or extra text:
+{
+  "questions": [
+    {
+      "question": "The question text string?",
+      "answers": ["Option A", "Option B", "Option C", "Option D"],
+      "correct": 0
+    }
+  ]
+}
+Note: "correct" must be the index (0, 1, 2, or 3) of the true answer within the answers array. Ensure content accuracy.`;
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+  });
+
+  if (!response.ok) throw new Error('API network response issue.');
+  const data = await response.json();
+  let txt = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  txt = txt.replace(/```json/g, '').replace(/```/g, '').trim();
+  const parsed = JSON.parse(txt);
+  if (!parsed.questions || !Array.isArray(parsed.questions)) throw new Error('Invalid signature structure returned.');
+  return parsed.questions;
+}
+
 // ─── HOST GAME ────────────────────────────────────────────────────────────────
 async function hostGame() {
   const err=document.getElementById('host-error');
   err.textContent='';
-  if (!FB_URL) { err.textContent='⚠️ Paste your Firebase Realtime DB URL in the field at the top first!'; return; }
   const tpq=parseInt(document.getElementById('host-time').value);
   let qs=[];
 
@@ -508,7 +500,6 @@ async function joinGame() {
   const code=document.getElementById('join-code').value.trim();
   const name=document.getElementById('join-name').value.trim();
   const err=document.getElementById('join-error');
-  if(!FB_URL){err.textContent='⚠️ Ask the host to paste Firebase URL in settings above.';return;}
   if(code.length!==4){err.textContent='Enter 4-digit code';return;}
   if(!name){err.textContent='Enter your nickname';return;}
   err.style.color='var(--muted)';err.textContent='Checking room…';
@@ -526,17 +517,15 @@ async function joinGame() {
     listenAsPlayer();
   } catch(e) {
     err.style.color='#e63946';
-    err.textContent='Error: '+(e.message||'Could not connect. Check Firebase URL.');
+    err.textContent='Error: '+(e.message||'Could not connect. Check dynamic connection.');
   }
 }
 
 function listenAsPlayer() {
-  // Watch player count
   dbListen(`rooms/${roomCode}/players`,(players)=>{
     const c=players?Object.keys(players).length:0;
     document.getElementById('wait-players-count').textContent=`${c} player${c!==1?'s':''}`;
   });
-  // Watch game status
   dbListen(`rooms/${roomCode}/status`,(status)=>{
     if(status==='playing') {
       dbGet(`rooms/${roomCode}/currentQ`).then(q=>{
@@ -549,7 +538,6 @@ function listenAsPlayer() {
       dbGet(`rooms/${roomCode}/players`).then(p=>showFinalResults(p));
     }
   });
-  // Watch currentQ changes while playing
   dbListen(`rooms/${roomCode}/currentQ`,(q)=>{
     if(q==null)return;
     dbGet(`rooms/${roomCode}/status`).then(status=>{
@@ -561,180 +549,187 @@ function listenAsPlayer() {
 // ─── SHOW QUESTION ────────────────────────────────────────────────────────────
 function showQuestion(idx) {
   const q=questions[idx]; selectedAnswer=null; timeLeft=timePerQ;
-  const total=questions.length;
-  // HOST
-  document.getElementById('qnum-host').textContent=`Q ${idx+1}/${total}`;
-  document.getElementById('q-text-host').textContent=q.question;
-  document.getElementById('answers-count').textContent='';
-  document.getElementById('progress-host').style.width=`${(idx/total)*100}%`;
-  for(let i=0;i<4;i++){
-    document.getElementById('h-a'+i).textContent=q.answers[i];
-    const el=document.getElementById('h-ans-'+i);
-    el.style.opacity='1';el.style.filter='';el.style.outline='';
-  }
-  // PLAYER
-  document.getElementById('qnum-player').textContent=`Q ${idx+1}/${total}`;
-  document.getElementById('q-text-player').textContent=q.question;
-  document.getElementById('progress-player').style.width=`${(idx/total)*100}%`;
-  const grid=document.getElementById('player-answers-grid');
-  for(let i=0;i<4;i++){
-    document.getElementById('p-a'+i).textContent=q.answers[i];
-    const b=grid.children[i];
-    b.disabled=false;b.style.opacity='1';b.style.filter='';b.style.outline='';
-  }
-  document.getElementById('player-feedback').innerHTML='';
-  document.getElementById('timer-arc-host').style.stroke='#f4a261';
-  document.getElementById('timer-arc-player').style.stroke='#f4a261';
-
-  if(isHost){show('screen-question-host');startTimer(true,idx);}
-  else{show('screen-question-player');startTimer(false,idx);}
-}
-
-function startTimer(asHost,qIdx) {
+  currentQ=idx;
   clearInterval(timerInt);
-  const max=timePerQ;
-  timerInt=setInterval(async()=>{
-    timeLeft--;
-    const off=113*(1-timeLeft/max);
-    ['host','player'].forEach(w=>{
-      const el=document.getElementById('timer-'+w);
-      const arc=document.getElementById('timer-arc-'+w);
-      if(el)el.textContent=timeLeft;
-      if(arc){arc.style.strokeDashoffset=off;arc.style.stroke=timeLeft<=5?'#e63946':'#f4a261';}
+
+  if (isHost) {
+    show('screen-question-host');
+    document.getElementById('qnum-host').textContent=`Question ${idx+1}/${questions.length}`;
+    document.getElementById('q-text-host').textContent=q.question;
+    document.getElementById('answers-count').textContent='0 answered';
+    [0,1,2,3].forEach(i=>{
+      const el=document.getElementById('h-a'+i); if(el) el.textContent=q.answers[i];
+      const btn=document.getElementById('h-ans-'+i); if(btn) btn.style.border='none';
     });
-    if(timeLeft<=0){
-      clearInterval(timerInt);
-      if(asHost){
-        // Reveal on host
-        const q=questions[qIdx];
-        for(let i=0;i<4;i++){
-          const el=document.getElementById('h-ans-'+i);
-          if(i===q.correct){el.style.outline='4px solid #fff';el.style.filter='brightness(1.2)';}
-          else el.style.filter='brightness(0.4)';
-        }
-        // Watch answer count before advancing
-        setTimeout(async()=>{
-          await dbUpdate(`rooms/${roomCode}`,{status:'leaderboard',currentQ:qIdx});
-          const room=await dbGet(`rooms/${roomCode}`);
-          showLeaderboard(room,true);
-        },2000);
-      } else {
-        // Player timed out
-        const grid=document.getElementById('player-answers-grid');
-        for(let i=0;i<4;i++) grid.children[i].disabled=true;
-        if(selectedAnswer===null)
-          document.getElementById('player-feedback').innerHTML=`<div class="feedback-banner feedback-wrong">⏱️ Time's up!</div>`;
-      }
-    }
+    dbSet(`rooms/${roomCode}/answersCount`, 0);
+    dbListen(`rooms/${roomCode}/answersCount`, (c)=>{
+      document.getElementById('answers-count').textContent=`${c||0} answered`;
+    });
+  } else {
+    show('screen-question-player');
+    document.getElementById('qnum-player').textContent=`Question ${idx+1}/${questions.length}`;
+    document.getElementById('q-text-player').textContent=q.question;
+    document.getElementById('player-feedback').innerHTML='';
+    const grid=document.getElementById('player-answers-grid');
+    grid.style.pointerEvents='auto';
+    [0,1,2,3].forEach(i=>{
+      const el=document.getElementById('p-a'+i); if(el) el.textContent=q.answers[i];
+      const btn=grid.children[i]; if(btn) { btn.disabled=false; btn.style.opacity='1'; btn.style.border='none'; }
+    });
+  }
+
+  updateTimerUI();
+  timerInt=setInterval(()=>{
+    timeLeft--; updateTimerUI();
+    if(timeLeft<=0) { clearInterval(timerInt); endQuestion(); }
   },1000);
 }
 
-// ─── SELECT ANSWER ────────────────────────────────────────────────────────────
+function updateTimerUI() {
+  const pct=(timeLeft/timePerQ)*113;
+  const num=Math.max(0,timeLeft);
+  if(isHost){
+    document.getElementById('timer-host').textContent=num;
+    document.getElementById('timer-arc-host').style.strokeDashoffset=113-pct;
+    document.getElementById('progress-host').style.width=((timePerQ-timeLeft)/timePerQ)*100+'%';
+  } else {
+    document.getElementById('timer-player').textContent=num;
+    document.getElementById('timer-arc-player').style.strokeDashoffset=113-pct;
+    document.getElementById('progress-player').style.width=((timePerQ-timeLeft)/timePerQ)*100+'%';
+  }
+}
+
+// ─── PLAYER ACTION ────────────────────────────────────────────────────────────
 async function selectAnswer(idx) {
   if(selectedAnswer!==null)return;
   selectedAnswer=idx;
-  const q=questions[currentQ]; const ok=idx===q.correct;
-  const pts=ok?100+Math.floor(timeLeft*10):0;
-  await dbSet(`rooms/${roomCode}/answers/${currentQ}/${myId}`,{idx,pts});
-  const cur=await dbGet(`rooms/${roomCode}/players/${myId}/score`);
-  await dbSet(`rooms/${roomCode}/players/${myId}/score`,(cur||0)+pts);
   const grid=document.getElementById('player-answers-grid');
-  for(let i=0;i<4;i++){grid.children[i].disabled=true;grid.children[i].style.opacity=i===idx?'1':'0.4';}
-  if(ok)grid.children[idx].style.outline='4px solid #fff';
-  else grid.children[idx].style.filter='brightness(0.5)';
-  document.getElementById('player-feedback').innerHTML=ok
-    ?`<div class="feedback-banner feedback-correct">✅ Correct! +${pts} pts</div>`
-    :`<div class="feedback-banner feedback-wrong">❌ Wrong! 0 pts</div>`;
+  grid.style.pointerEvents='none';
+  [0,1,2,3].forEach(i=>{ if(i!==idx) grid.children[i].style.opacity='0.3'; });
+  grid.children[idx].style.border='3px solid #fff';
+
+  const room = await dbGet(`rooms/${roomCode}`);
+  const count = (room.answersCount || 0) + 1;
+  await dbUpdate(`rooms/${roomCode}`, { answersCount: count });
+  await dbSet(`rooms/${roomCode}/submittedAnswers/${myId}`, { answer: idx, timeUsed: timePerQ - timeLeft });
 }
 
-// ─── LEADERBOARD ─────────────────────────────────────────────────────────────
-function renderSB(players, id) {
-  const sorted=Object.values(players||{}).sort((a,b)=>b.score-a.score);
-  document.getElementById(id).innerHTML=sorted.slice(0,10).map((p,i)=>`
-    <div class="score-row ${i===0?'top':''}">
-      <span class="rank">${i===0?'👑':i===1?'🥈':i===2?'🥉':'#'+(i+1)}</span>
-      <span class="score-name">${p.name}</span>
-      <span class="score-pts">${p.score||0} pts</span>
-    </div>`).join('');
-}
+// ─── END QUESTION ─────────────────────────────────────────────────────────────
+async function endQuestion() {
+  clearInterval(timerInt);
+  const q=questions[currentQ];
+  if (isHost) {
+    dbStopListen(`rooms/${roomCode}/answersCount`);
+    const room = await dbGet(`rooms/${roomCode}`) || {};
+    const subs = room.submittedAnswers || {};
+    const players = room.players || {};
 
-function showLeaderboard(room, asHost) {
-  const qIdx=room.currentQ;
-  document.getElementById('lb-subtitle').textContent=`After Q${qIdx+1} of ${questions.length}`;
-  renderSB(room.players,'scoreboard-mid');
-  const isLast=qIdx+1>=questions.length;
-  const btn=document.getElementById('next-q-btn');
-  if(asHost){
-    btn.style.display='block';
-    btn.textContent=isLast?'🏆 Final results':'Next question →';
-    document.getElementById('lb-wait-msg').textContent='';
+    Object.keys(subs).forEach(pId=>{
+      if(players[pId] && subs[pId].answer===q.correct) {
+        const base = 1000;
+        const speedBonus = Math.round(((timePerQ - subs[pId].timeUsed)/timePerQ)*500);
+        players[pId].score = (players[pId].score || 0) + base + speedBonus;
+      }
+    });
+
+    await dbUpdate(`rooms/${roomCode}`, { players, status: 'leaderboard' });
+    await dbDelete(`rooms/${roomCode}/submittedAnswers`);
+    showLeaderboard({players, currentQ, questions}, true);
   } else {
-    btn.style.display='none';
-    document.getElementById('lb-wait-msg').textContent='⏳ Waiting for host…';
+    const grid=document.getElementById('player-answers-grid');
+    grid.style.pointerEvents='none';
+    [0,1,2,3].forEach(i=>{
+      if(i===q.correct) { grid.children[i].style.border='3px solid #2a9d8f'; grid.children[i].style.opacity='1'; }
+      else if(i===selectedAnswer) { grid.children[i].style.border='3px solid #e63946'; }
+    });
+    const fb=document.getElementById('player-feedback');
+    if(selectedAnswer===q.correct) {
+      fb.innerHTML=`<div class="feedback-banner feedback-correct">✨ Correct! +1000 pts</div>`;
+    } else if(selectedAnswer===null) {
+      fb.innerHTML=`<div class="feedback-banner feedback-wrong">⏳ Time's up! Correct was: ${q.answers[q.correct]}</div>`;
+    } else {
+      fb.innerHTML=`<div class="feedback-banner feedback-wrong">❌ Incorrect! Correct was: ${q.answers[q.correct]}</div>`;
+    }
   }
+}
+
+// ─── LEADERBOARD MID ──────────────────────────────────────────────────────────
+function showLeaderboard(room, hostMode) {
   show('screen-leaderboard-mid');
+  const plist=room.players?Object.values(room.players):[];
+  plist.sort((a,b)=>b.score-a.score);
+
+  document.getElementById('lb-subtitle').textContent=`After Question ${room.currentQ+1}/${questions.length}`;
+  const wrap=document.getElementById('scoreboard-mid');
+  wrap.innerHTML=plist.map((p,i)=>`
+    <div class="score-row ${i===0?'top':''}">
+      <span class="rank">#${i+1}</span>
+      <span class="score-name">${p.name}</span>
+      <span class="score-pts">${p.score} pts</span>
+    </div>`).join('');
+
+  const nextBtn=document.getElementById('next-q-btn');
+  const waitMsg=document.getElementById('lb-wait-msg');
+
+  if(hostMode) {
+    nextBtn.style.display='inline-block';
+    nextBtn.textContent=room.currentQ+1>=questions.length?'Finish Game 🏁':'Next question →';
+    waitMsg.textContent='You have control. Click above when ready.';
+  } else {
+    nextBtn.style.display='none';
+    waitMsg.textContent='Waiting for host to proceed...';
+  }
 }
 
 async function hostNextQuestion() {
-  const next=currentQ+1;
-  if(next>=questions.length){
+  if(currentQ+1>=questions.length) {
     await dbUpdate(`rooms/${roomCode}`,{status:'finished'});
-    const p=await dbGet(`rooms/${roomCode}/players`);
-    showFinalResults(p);
+    const plist = await dbGet(`rooms/${roomCode}/players`);
+    showFinalResults(plist);
   } else {
-    currentQ=next;
-    await dbUpdate(`rooms/${roomCode}`,{status:'playing',currentQ:next});
-    showQuestion(next);
+    const nq=currentQ+1;
+    await dbUpdate(`rooms/${roomCode}`,{status:'playing',currentQ:nq});
+    showQuestion(nq);
   }
 }
 
+// ─── FINAL SCREEN ─────────────────────────────────────────────────────────────
 function showFinalResults(players) {
-  const sorted=Object.values(players||{}).sort((a,b)=>b.score-a.score);
-  document.getElementById('winner-name').textContent=sorted.length?`🎉 ${sorted[0].name} wins!`:'Game over!';
-  renderSB(players,'scoreboard-final');
   show('screen-final');
+  dbStopAll();
+  const plist=players?Object.values(players):[];
+  plist.sort((a,b)=>b.score-a.score);
+
+  if(plist.length>0) {
+    document.getElementById('winner-name').textContent=`👑 ${plist[0].name} wins with ${plist[0].score} points!`;
+  } else {
+    document.getElementById('winner-name').textContent='No players entered.';
+  }
+
+  const wrap=document.getElementById('scoreboard-final');
+  wrap.innerHTML=plist.map((p,i)=>`
+    <div class="score-row ${i===0?'top':''}">
+      <span class="rank">#${i+1}</span>
+      <span class="score-name">${p.name}</span>
+      <span class="score-pts">${p.score} pts</span>
+    </div>`).join('');
 }
 
 async function resetGame() {
-  dbStopAll(); clearInterval(timerInt);
-  if(roomCode&&isHost) await dbDelete(`rooms/${roomCode}`);
-  roomCode=null;isHost=false;myId=null;myName=null;
-  questions=[];timePerQ=20;selectedAnswer=null;currentQ=0;
-  document.getElementById('qr-wrap').innerHTML='';
-  document.getElementById('host-topic').value='';
-  document.getElementById('manual-questions-list').innerHTML='';
-  document.getElementById('host-error').textContent='';
-  document.getElementById('join-error').textContent='';
-  mqCount=0;
-  window.history.replaceState({},'',window.location.pathname);
+  if(isHost && roomCode) { await dbDelete(`rooms/${roomCode}`); }
+  dbStopAll();
+  roomCode=null; isHost=false; myId=null; myName=null; questions=[]; currentQ=0; selectedAnswer=null;
   show('screen-home');
 }
 
-// ─── GEMINI API ───────────────────────────────────────────────────────────────
-async function generateQuestions(topic,count,difficulty,apiKey) {
-  const prompt=`Generate ${count} multiple-choice quiz questions about "${topic}" at ${difficulty} difficulty.
-Return ONLY a valid JSON array. No markdown, no backticks, no explanation.
-Format: [{"question":"...","answers":["opt1","opt2","opt3","opt4"],"correct":0},...]
-"correct" = 0-based index of right answer. Vary which index is correct.`;
-  const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
-  });
-  const data=await res.json();
-  if(data.error)throw new Error(data.error.message);
-  const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
-  return JSON.parse(text.replace(/```json|```/g,'').trim());
-}
-
-// ─── BOOT: handle ?room= in URL ───────────────────────────────────────────────
-(function(){
+// Quick entry check from url search param wrapper string
+window.addEventListener('DOMContentLoaded', () => {
   const p=new URLSearchParams(window.location.search);
-  const r=p.get('room');
-  if(r){
+  const r=p.get('room'); if(r&&r.length===4) {
+    switchTab('join', document.querySelectorAll('.tab')[1]);
     document.getElementById('join-code').value=r;
-    switchTab('join',document.querySelectorAll('.tab')[1]);
   }
-})();
+});
 </script>
 </body>
 </html>

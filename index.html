@@ -98,16 +98,14 @@ select option{background:#1a1a2e;}
 <body>
 
 <div class="topbar">
-  <span>🔑 Gemini Key</span>
-  <input type="password" id="api-key-input" placeholder="AIza... (only needed for AI question generation)" oninput="saveKey()" />
-  <span class="key-status" id="key-status">Not set</span>
-  <a href="https://aistudio.google.com/app/apikey" target="_blank" style="font-size:.76rem;color:#457b9d;text-decoration:none;">Get key ↗</a>
+  <span>⚡ Generation Mode:</span>
+  <span class="key-status ok" id="key-status">Groq Engine Active</span>
 </div>
 
 <div id="screen-home" class="screen active">
   <div style="text-align:center;padding-top:22px;margin-bottom:1rem;">
     <div class="logo">⚡ QuizBlast</div>
-    <div class="tagline">Real-time multiplayer quiz — works across all devices!</div>
+    <div class="tagline">Real-time multiplayer quiz — powered by Groq!</div>
   </div>
   <div class="tab-bar" style="max-width:520px;width:100%;">
     <button class="tab active" onclick="switchTab('host',this)">🎮 Host Game</button>
@@ -173,7 +171,7 @@ select option{background:#1a1a2e;}
   <div style="text-align:center;margin-top:60px;">
     <div style="font-size:3.5rem;margin-bottom:1rem;">🤖</div>
     <h2 style="font-size:1.7rem;">Generating your quiz</h2>
-    <p style="color:var(--muted);margin:.5rem 0 2rem;">Gemini AI crafting questions on <strong id="gen-topic">your topic</strong></p>
+    <p style="color:var(--muted);margin:.5rem 0 2rem;">Groq Llama AI crafting questions on <strong id="gen-topic">your topic</strong></p>
     <div class="loading-dots"><span>•</span><span>•</span><span>•</span></div>
     <div style="margin-top:2rem;max-width:360px;">
       <div class="shimmer" style="width:80%;margin:0 auto;"></div>
@@ -292,13 +290,7 @@ select option{background:#1a1a2e;}
 <script>
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
 const FB_URL = 'https://quiz-8016d-default-rtdb.asia-southeast1.firebasedatabase.app';
-
-function saveKey() {
-  const k = document.getElementById('api-key-input').value.trim();
-  document.getElementById('key-status').textContent = k.length>10?'✓ Set':'Not set';
-  document.getElementById('key-status').className = k.length>10?'key-status ok':'key-status';
-}
-function getKey() { return document.getElementById('api-key-input').value.trim(); }
+const GROQ_KEY = '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';
 
 // ─── FIREBASE REST ────────────────────────────────────────────────────────────
 async function dbSet(path, val) {
@@ -398,7 +390,7 @@ function getManualQuestions() {
   return qs;
 }
 
-// ─── AI GENERATOR ─────────────────────────────────────────────────────────────
+// ─── AI GENERATOR (UPDATED FOR GROQ) ──────────────────────────────────────────
 async function generateQuestions(topic, count, difficulty, key) {
   const prompt = `Generate a JSON object containing exactly ${count} multiple choice quiz questions about "${topic}" at a ${difficulty} difficulty level.
 Return ONLY a valid JSON object matching this structural design precisely without markdown code wrappers, comments, formatting breaks, or extra text:
@@ -413,18 +405,24 @@ Return ONLY a valid JSON object matching this structural design precisely withou
 }
 Note: "correct" must be the index (0, 1, 2, or 3) of the true answer within the answers array. Ensure content accuracy.`;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
+  const url = `https://api.groq.com/openai/v1/chat/completions`;
   const response = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    headers: { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${key}`
+    },
+    body: JSON.stringify({ 
+      model: "llama-3.3-70b-versatile",
+      response_format: { type: "json_object" },
+      messages: [{ role: "user", content: prompt }] 
+    })
   });
 
   if (!response.ok) throw new Error('API network response issue.');
   const data = await response.json();
-  let txt = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-  txt = txt.replace(/```json/g, '').replace(/```/g, '').trim();
-  const parsed = JSON.parse(txt);
+  let txt = data.choices?.[0]?.message?.content || '';
+  const parsed = JSON.parse(txt.trim());
   if (!parsed.questions || !Array.isArray(parsed.questions)) throw new Error('Invalid signature structure returned.');
   return parsed.questions;
 }
@@ -442,16 +440,14 @@ async function hostGame() {
   } else {
     const topic=document.getElementById('host-topic').value.trim();
     if(!topic){err.textContent='Please enter a topic!';return;}
-    const key=getKey();
-    if(key.length<10){err.textContent='⚠️ Paste your Gemini API key at the top.';return;}
     document.getElementById('gen-topic').textContent=topic;
     show('screen-generating');
     try {
       qs=await generateQuestions(topic, document.getElementById('host-qcount').value,
-        document.getElementById('host-difficulty').value, key);
+        document.getElementById('host-difficulty').value, GROQ_KEY);
     } catch(e) {
       show('screen-home');
-      err.textContent='❌ '+(e.message||'Generation failed. Check API key.');
+      err.textContent='❌ '+(e.message||'Generation failed. Check API key configuration.');
       return;
     }
   }
@@ -478,7 +474,6 @@ function setupLobby() {
   } catch(e) {
     qw.innerHTML=`<div style="width:150px;height:150px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:8px;color:#1a1a2e;font-weight:900;font-size:2rem;letter-spacing:4px;">${roomCode}</div>`;
   }
-  // Live player list
   dbListen(`rooms/${roomCode}/players`, (players) => {
     const list=players?Object.values(players):[];
     document.getElementById('player-count').textContent=list.length;
@@ -722,7 +717,6 @@ async function resetGame() {
   show('screen-home');
 }
 
-// Quick entry check from url search param wrapper string
 window.addEventListener('DOMContentLoaded', () => {
   const p=new URLSearchParams(window.location.search);
   const r=p.get('room'); if(r&&r.length===4) {

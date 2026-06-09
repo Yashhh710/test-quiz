@@ -571,6 +571,9 @@ function soundCountdown(){playTone(330,'sine',.1,.2);}
 function soundWinner(){
   [523,659,784,1047].forEach((f,i)=>playTone(f,'sine',.2,.3,i*.15));
 }
+function soundPop(){playTone(600,'sine',.05,.2);}
+function soundReaction(){playTone(800,'sine',.1,.15);playTone(1200,'sine',.1,.15,.1);}
+function soundKick(){playTone(150,'sawtooth',.3,.3);playTone(100,'sawtooth',.4,.3,.3);}
 function speakText(text) {
   if (!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
@@ -731,6 +734,8 @@ function setupLobby(){
 
 function renderHostPlayerList(players){
   const list=players?Object.values(players):[];
+  if (window._lastPlayerCount !== undefined && list.length > window._lastPlayerCount) soundPop();
+  window._lastPlayerCount = list.length;
   document.getElementById('player-count').textContent=list.length;
   const wrap=document.getElementById('host-players-list');
   wrap.innerHTML=list.length===0
@@ -757,8 +762,9 @@ function renderHostPlayerList(players){
 function openKick(id,name){pendingKickId=id;document.getElementById('kick-name-label').textContent=name;document.getElementById('kick-modal').style.display='flex';}
 async function confirmKick(){
   if(!pendingKickId)return;
-  await dbSet(`rooms/${roomCode}/players/${pendingKickId}/kicked`,true);
-  await dbDelete(`rooms/${roomCode}/players/${pendingKickId}`);
+  await dbUpdate(`rooms/${roomCode}/players/${pendingKickId}`, {kicked:true});
+  const idToDel = pendingKickId;
+  setTimeout(()=>dbDelete(`rooms/${roomCode}/players/${idToDel}`), 2500);
   closeModal('kick-modal');pendingKickId=null;
 }
 function openRename(id,name){pendingRenameId=id;document.getElementById('rename-input').value=name;document.getElementById('rename-modal').style.display='flex';}
@@ -827,7 +833,11 @@ function listenAsPlayer(){
     document.getElementById('wait-players-count').textContent=`${list.length} player${list.length!==1?'s':''} in room`;
     const chips=document.getElementById('wait-players-chips');
     if(chips)chips.innerHTML=list.map(p=>`<div class="player-chip">${p.avatar||'🎮'} ${p.name}</div>`).join('');
-    if(players&&!players[myId])resetLocalUI();
+    if(players&&players[myId]&&players[myId].kicked){
+      showKickedScreen();
+    } else if(players&&!players[myId]){
+      resetLocalUI();
+    }
   });
   dbListen(`rooms/${roomCode}/status`,(status)=>{
     if(status==='countdown')showCountdown(()=>{});
@@ -859,7 +869,15 @@ function handleIncomingReactions(data){
 function spawnFloating(emoji,x,y){
   const el=document.createElement('div');el.className='floating-reaction';el.textContent=emoji;
   el.style.left=x+'px';el.style.top=y+'px';document.body.appendChild(el);
+  soundReaction();
   setTimeout(()=>{if(el.parentNode)el.parentNode.removeChild(el);},2000);
+}
+function showKickedScreen(){
+  soundKick();
+  const el=document.createElement('div');el.className='modal-overlay';
+  el.innerHTML=`<div class="modal-box" style="text-align:center;"><h3 style="font-size:3rem;margin-bottom:10px;">🚪</h3><h3 style="color:#ff6b6b;margin-bottom:10px;">Oops!</h3><p>You were kicked by the host.</p><button class="btn btn-purple btn-sm" onclick="this.parentElement.parentElement.remove();resetLocalUI();" style="margin-top:15px;">Go Home</button></div>`;
+  document.body.appendChild(el);
+  dbStopAll();
 }
 
 // ─── SHOW QUESTION ────────────────────────────────────────────────────────────
@@ -888,8 +906,8 @@ function showQuestion(idx){
     dbListen(`rooms/${roomCode}/answersCount`, async (c)=>{
       document.getElementById('answers-count').textContent=`${c||0} answered`;
       if(c && c > 0) {
-        const room = await dbGet(`rooms/${roomCode}`);
-        const pCount = room && room.players ? Object.keys(room.players).length : 0;
+        const playersObj = await dbGet(`rooms/${roomCode}/players`);
+        const pCount = playersObj ? Object.keys(playersObj).length : 0;
         if(pCount > 0 && c >= pCount) {
           skipTimer();
         }

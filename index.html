@@ -5,354 +5,445 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>QuizBlast - Multiplayer Quiz</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght=700;800;900&family=Nunito+Sans:wght=400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#1a1a2e;--surface:#16213e;--card:#0f3460;
-  --text:#eaeaea;--muted:#a0a0b8;
-  --ans-a:#e63946;--ans-b:#f4a261;--ans-c:#2a9d8f;--ans-d:#457b9d;
-  --font-h:'Nunito',sans-serif;--font-b:'Nunito Sans',sans-serif;
+  --purple:#6C3CE1;
+  --purple-dark:#4A1FA8;
+  --purple-light:#8B5CF6;
+  --purple-bg:#7C3AED;
+  --white:#FFFFFF;
+  --off-white:#F8F6FF;
+  --text-dark:#1A1035;
+  --text-mid:#6B6880;
+  --ans-blue:#4D8AF0;
+  --ans-red:#F05252;
+  --ans-orange:#F6A623;
+  --ans-green:#22C55E;
+  --font-h:'Nunito',sans-serif;
+  --font-b:'Nunito Sans',sans-serif;
 }
-body{font-family:var(--font-b);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
-.screen{display:none;min-height:100vh;padding:20px;}
+body{font-family:var(--font-b);background:var(--purple-bg);color:var(--text-dark);min-height:100vh;overflow-x:hidden;}
+.screen{display:none;min-height:100vh;}
 .screen.active{display:flex;flex-direction:column;align-items:center;}
-h2,h3{font-family:var(--font-h);}
-.logo{font-family:var(--font-h);font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,#e63946,#f4a261,#2a9d8f);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-1px;margin-bottom:.2rem;}
-.tagline{color:var(--muted);font-size:.9rem;margin-bottom:1.2rem;}
-.card{background:var(--surface);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:1.75rem;width:100%;max-width:520px;}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 24px;border-radius:14px;border:none;font-family:var(--font-h);font-size:.95rem;font-weight:800;cursor:pointer;transition:transform .12s,filter .12s;width:100%;margin-top:10px;}
+
+/* ── PURPLE HEADER ZONE ── */
+.purple-top{
+  background:linear-gradient(160deg, #8B5CF6 0%, #6C3CE1 50%, #4A1FA8 100%);
+  width:100%;display:flex;flex-direction:column;align-items:center;
+  padding:48px 24px 60px;position:relative;overflow:hidden;
+}
+.purple-top::before{
+  content:'';position:absolute;bottom:-30px;left:0;right:0;height:60px;
+  background:var(--off-white);border-radius:50% 50% 0 0 / 100% 100% 0 0;
+}
+/* ── WHITE BODY ZONE ── */
+.white-body{
+  background:var(--off-white);width:100%;flex:1;
+  padding:20px 20px 40px;display:flex;flex-direction:column;align-items:center;
+  position:relative;z-index:1;
+}
+
+/* ── LOGO ── */
+.logo{font-family:var(--font-h);font-size:2.8rem;font-weight:900;color:#fff;letter-spacing:-1px;text-shadow:0 4px 24px rgba(0,0,0,.25);}
+.logo span{color:#FDE68A;}
+.tagline{color:rgba(255,255,255,.75);font-size:.9rem;margin-top:4px;font-weight:600;}
+
+/* ── CARD ── */
+.card{background:#fff;border-radius:24px;padding:24px;width:100%;max-width:480px;box-shadow:0 8px 40px rgba(108,60,225,.12);}
+
+/* ── TABS ── */
+.tab-bar{display:flex;gap:0;background:rgba(255,255,255,.15);border-radius:50px;padding:4px;max-width:340px;width:100%;margin-bottom:0;}
+.tab{flex:1;padding:10px 0;border-radius:50px;border:none;background:transparent;color:rgba(255,255,255,.7);font-family:var(--font-h);font-weight:800;font-size:.9rem;cursor:pointer;transition:all .2s;}
+.tab.active{background:#fff;color:var(--purple);}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:16px 24px;border-radius:50px;border:none;font-family:var(--font-h);font-size:1rem;font-weight:900;cursor:pointer;transition:transform .12s,box-shadow .2s;width:100%;margin-top:12px;}
 .btn:active{transform:scale(.97);}
-.btn:disabled{opacity:.45;cursor:not-allowed;}
-.btn:hover:not(:disabled){filter:brightness(1.08);}
-.btn-primary{background:linear-gradient(135deg,#e63946,#c1121f);color:#fff;}
-.btn-success{background:linear-gradient(135deg,#2a9d8f,#1a7a6e);color:#fff;}
-.btn-ghost{background:rgba(255,255,255,.07);color:var(--text);border:1px solid rgba(255,255,255,.14);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn:hover:not(:disabled){transform:translateY(-1px);}
+.btn-primary{background:linear-gradient(135deg,#7C3AED,#6C3CE1);color:#fff;box-shadow:0 8px 24px rgba(108,60,225,.35);}
+.btn-primary:hover:not(:disabled){box-shadow:0 12px 32px rgba(108,60,225,.45);}
+.btn-success{background:linear-gradient(135deg,#22C55E,#16A34A);color:#fff;box-shadow:0 8px 24px rgba(34,197,94,.35);}
+.btn-warn{background:linear-gradient(135deg,#F6A623,#F59E0B);color:#fff;box-shadow:0 6px 20px rgba(246,166,35,.35);}
+.btn-ghost{background:rgba(108,60,225,.08);color:var(--purple);border:2px solid rgba(108,60,225,.2);width:auto;margin-top:0;padding:10px 18px;font-size:.85rem;}
 .btn-sm{padding:9px 16px;font-size:.82rem;width:auto;margin-top:0;}
-input[type=text],input[type=password],select,textarea{width:100%;padding:11px 14px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);border-radius:12px;color:var(--text);font-family:var(--font-b);font-size:.95rem;margin-top:5px;outline:none;transition:border-color .2s;resize:vertical;}
-input:focus,select:focus,textarea:focus{border-color:#e63946;}
-label{font-size:.82rem;color:var(--muted);font-weight:700;display:block;margin-top:12px;text-transform:uppercase;letter-spacing:.5px;}
-.room-code{font-family:var(--font-h);font-size:3rem;font-weight:900;letter-spacing:12px;color:#f4a261;text-align:center;text-shadow:0 0 30px rgba(244,162,97,.35);}
-#qr-wrap{background:#fff;border-radius:16px;padding:14px;display:inline-block;margin:.75rem auto;}
-.players-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-height:160px;overflow-y:auto;margin:.75rem 0;}
-.player-chip{background:rgba(255,255,255,.1);border-radius:20px;padding:7px 14px;font-weight:700;font-size:.85rem;animation:popIn .3s ease;}
+
+/* ── INPUTS ── */
+input[type=text],input[type=password],select,textarea{
+  width:100%;padding:14px 16px;background:#F3F0FF;border:2px solid #E8E0FF;
+  border-radius:16px;color:var(--text-dark);font-family:var(--font-b);font-size:.95rem;
+  margin-top:6px;outline:none;transition:border-color .2s;resize:vertical;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--purple);}
+label{font-size:.78rem;color:var(--text-mid);font-weight:700;display:block;margin-top:14px;text-transform:uppercase;letter-spacing:.6px;}
+select option{background:#fff;}
+
+/* ── METHOD TABS ── */
+.method-tabs{display:flex;gap:8px;margin-bottom:18px;background:#F3F0FF;padding:4px;border-radius:16px;}
+.method-tab{flex:1;padding:11px;border-radius:12px;border:none;background:transparent;color:var(--text-mid);font-family:var(--font-h);font-weight:800;font-size:.85rem;cursor:pointer;transition:all .2s;text-align:center;}
+.method-tab.active{background:#fff;color:var(--purple);box-shadow:0 2px 12px rgba(108,60,225,.15);}
+
+/* ── ROOM CODE ── */
+.room-code{font-family:var(--font-h);font-size:3.5rem;font-weight:900;letter-spacing:14px;color:#fff;text-align:center;text-shadow:0 4px 24px rgba(0,0,0,.25);}
+#qr-wrap{background:#fff;border-radius:20px;padding:14px;display:inline-block;margin:.75rem auto;box-shadow:0 4px 20px rgba(0,0,0,.15);}
+
+/* ── PLAYERS GRID ── */
+.players-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-height:170px;overflow-y:auto;margin:.75rem 0;}
+.player-chip{background:rgba(255,255,255,.2);border-radius:50px;padding:8px 18px;font-weight:800;font-size:.85rem;color:#fff;border:1.5px solid rgba(255,255,255,.3);animation:popIn .3s ease;}
 @keyframes popIn{from{transform:scale(.5);opacity:0;}to{transform:scale(1);opacity:1;}}
-.question-card{background:var(--surface);border-radius:20px;padding:1.4rem 1.8rem;width:100%;max-width:700px;text-align:center;}
-.question-text{font-family:var(--font-h);font-size:1.35rem;font-weight:800;line-height:1.3;margin:.6rem 0;}
-.answers-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:700px;margin-top:.75rem;}
-.ans-btn{padding:18px 14px;border-radius:16px;border:none;font-family:var(--font-h);font-size:1rem;font-weight:800;cursor:pointer;transition:transform .15s,filter .15s;text-align:left;display:flex;align-items:center;gap:10px;color:#fff;}
-.ans-btn:hover:not(:disabled){transform:scale(1.03);filter:brightness(1.1);}
+
+/* ── QUESTION SCREENS ── */
+.q-header{width:100%;max-width:700px;display:flex;justify-content:space-between;align-items:center;padding:0 0 8px;}
+.q-counter{font-family:var(--font-h);font-size:.9rem;font-weight:800;color:rgba(255,255,255,.85);}
+.question-card{background:#fff;border-radius:24px;padding:24px 28px;width:100%;max-width:700px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.12);}
+.question-text{font-family:var(--font-h);font-size:1.25rem;font-weight:800;line-height:1.4;color:var(--text-dark);}
+
+/* ── ANSWER BUTTONS ── */
+.answers-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:700px;margin-top:16px;}
+.ans-btn{padding:20px 16px;border-radius:20px;border:none;font-family:var(--font-h);font-size:.95rem;font-weight:800;cursor:pointer;transition:transform .15s,box-shadow .15s;text-align:left;display:flex;align-items:center;gap:12px;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.15);}
+.ans-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2);}
 .ans-btn:disabled{cursor:not-allowed;}
-.ans-btn:nth-child(1){background:var(--ans-a);}
-.ans-btn:nth-child(2){background:var(--ans-b);}
-.ans-btn:nth-child(3){background:var(--ans-c);}
-.ans-btn:nth-child(4){background:var(--ans-d);}
-.ans-icon{width:34px;height:34px;background:rgba(0,0,0,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
-.timer-num{font-family:var(--font-h);font-size:1rem;font-weight:900;color:#f4a261;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
-.progress-bar{width:100%;height:5px;background:rgba(255,255,255,.1);border-radius:6px;overflow:hidden;margin:.75rem 0;}
-.progress-fill{height:100%;background:linear-gradient(90deg,#e63946,#f4a261);border-radius:6px;transition:width 1s linear;}
+.ans-btn:nth-child(1){background:var(--ans-blue);}
+.ans-btn:nth-child(2){background:var(--ans-red);}
+.ans-btn:nth-child(3){background:var(--ans-orange);}
+.ans-btn:nth-child(4){background:var(--ans-green);}
+.ans-icon{width:36px;height:36px;background:rgba(255,255,255,.25);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;font-weight:900;}
+
+/* ── TIMER ── */
+.timer-num{font-family:var(--font-h);font-size:1rem;font-weight:900;color:#fff;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
+
+/* ── PROGRESS ── */
+.progress-bar{width:100%;height:6px;background:rgba(255,255,255,.25);border-radius:6px;overflow:hidden;margin:.6rem 0;}
+.progress-fill{height:100%;background:#FDE68A;border-radius:6px;transition:width 1s linear;}
+
+/* ── SCOREBOARD ── */
 .scoreboard{width:100%;max-width:480px;}
-.score-row{display:flex;align-items:center;gap:12px;padding:11px 15px;background:rgba(255,255,255,.05);border-radius:12px;margin-bottom:7px;animation:slideIn .3s ease;}
-.score-row.top{background:rgba(244,162,97,.15);border:1px solid rgba(244,162,97,.3);}
+.score-row{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border-radius:16px;margin-bottom:8px;animation:slideIn .3s ease;box-shadow:0 2px 12px rgba(108,60,225,.08);}
+.score-row.top{background:linear-gradient(135deg,#F3F0FF,#EDE9FF);border:2px solid rgba(108,60,225,.2);}
 @keyframes slideIn{from{transform:translateX(-20px);opacity:0;}to{transform:translateX(0);opacity:1;}}
-.rank{font-family:var(--font-h);font-size:1.1rem;font-weight:900;color:#f4a261;width:28px;}
-.score-name{flex:1;font-weight:700;}
-.score-pts{font-family:var(--font-h);font-weight:900;color:#2a9d8f;}
-.feedback-banner{padding:13px 22px;border-radius:14px;text-align:center;font-family:var(--font-h);font-size:1.2rem;font-weight:900;margin:.75rem 0;animation:popIn .3s ease;}
-.feedback-correct{background:rgba(42,157,143,.2);color:#2a9d8f;border:2px solid #2a9d8f;}
-.feedback-wrong{background:rgba(230,57,70,.15);color:#e63946;border:2px solid #e63946;}
-.tab-bar{display:flex;gap:8px;margin-bottom:1.5rem;background:rgba(255,255,255,.05);padding:5px;border-radius:14px;}
-.tab{flex:1;padding:9px;border-radius:10px;border:none;background:transparent;color:var(--muted);font-family:var(--font-h);font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s;}
-.tab.active{background:var(--card);color:var(--text);}
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;background:rgba(42,157,143,.2);color:#2a9d8f;margin-left:6px;}
-.q-counter{font-size:.82rem;color:var(--muted);font-weight:600;}
-.loading-dots span{animation:blink 1.2s infinite;font-size:1.4rem;}
-.loading-dots span:nth-child(2){animation-delay:.2s;}
-.loading-dots span:nth-child(3){animation-delay:.4s;}
-@keyframes blink{0%,80%,100%{opacity:0;}40%{opacity:1;}}
-.divider{width:100%;height:1px;background:rgba(255,255,255,.07);margin:.9rem 0;}
-.winner-crown{font-size:3.5rem;animation:bounce .6s infinite alternate;}
-@keyframes bounce{from{transform:translateY(0);}to{transform:translateY(-10px);}}
-.shimmer{background:linear-gradient(90deg,rgba(255,255,255,.03) 0%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.03) 100%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px;height:18px;margin:5px 0;}
-@keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
-select option{background:#1a1a2e;}
-.method-tabs{display:flex;gap:8px;margin-bottom:1rem;}
-.method-tab{flex:1;padding:10px;border-radius:12px;border:1.5px solid rgba(255,255,255,.1);background:transparent;color:var(--muted);font-family:var(--font-h);font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s;text-align:center;}
-.method-tab.active{border-color:#e63946;background:rgba(230,57,70,.1);color:#e63946;}
-.q-editor{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:1rem;margin-bottom:10px;position:relative;}
-.q-editor-num{font-family:var(--font-h);font-size:.8rem;color:var(--muted);margin-bottom:6px;font-weight:700;}
+.rank{font-family:var(--font-h);font-size:1rem;font-weight:900;color:var(--purple);width:32px;}
+.rank-badge{width:36px;height:36px;background:linear-gradient(135deg,#FDE68A,#F59E0B);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.9rem;color:#7C2D12;}
+.score-name{flex:1;font-weight:700;color:var(--text-dark);}
+.score-pts{font-family:var(--font-h);font-weight:900;color:var(--purple);}
+.score-pct{font-family:var(--font-h);font-weight:800;color:var(--text-mid);font-size:.9rem;}
+
+/* ── FEEDBACK ── */
+.feedback-banner{padding:16px 22px;border-radius:16px;text-align:center;font-family:var(--font-h);font-size:1.15rem;font-weight:900;margin:.75rem 0;animation:popIn .3s ease;}
+.feedback-correct{background:rgba(34,197,94,.1);color:#16A34A;border:2px solid #22C55E;}
+.feedback-wrong{background:rgba(240,82,82,.1);color:#DC2626;border:2px solid #F05252;}
+
+/* ── BADGES ── */
+.badge{display:inline-block;padding:4px 12px;border-radius:50px;font-size:.75rem;font-weight:800;background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);}
+
+/* ── Q EDITOR ── */
+.q-editor{background:#F3F0FF;border:2px solid #E8E0FF;border-radius:16px;padding:16px;margin-bottom:10px;position:relative;}
+.q-editor-num{font-family:var(--font-h);font-size:.8rem;color:var(--purple);margin-bottom:6px;font-weight:800;}
 .ans-inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
 .ans-input-wrap{position:relative;}
 .ans-input-wrap input{padding-left:34px;}
 .ans-label-abs{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:.8rem;font-weight:800;}
-.q-del{position:absolute;top:10px;right:10px;background:rgba(230,57,70,.12);border:none;color:#e63946;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:.8rem;font-weight:700;}
-.q-del:hover{background:rgba(230,57,70,.25);}
-.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#2a9d8f;margin-right:5px;animation:livepulse 1.5s infinite;}
+.q-del{position:absolute;top:10px;right:10px;background:rgba(240,82,82,.1);border:none;color:#F05252;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:.8rem;font-weight:700;}
+.q-del:hover{background:rgba(240,82,82,.2);}
+
+/* ── MISC ── */
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#22C55E;margin-right:5px;animation:livepulse 1.5s infinite;}
 @keyframes livepulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.8);}}
+.loading-dots span{animation:blink 1.2s infinite;font-size:1.4rem;color:rgba(255,255,255,.8);}
+.loading-dots span:nth-child(2){animation-delay:.2s;}
+.loading-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,80%,100%{opacity:0;}40%{opacity:1;}}
+.shimmer{background:linear-gradient(90deg,rgba(255,255,255,.1) 0%,rgba(255,255,255,.25) 50%,rgba(255,255,255,.1) 100%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px;height:18px;margin:5px 0;}
+@keyframes shimmer{0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+.divider{width:100%;height:1.5px;background:rgba(108,60,225,.08);margin:.9rem 0;}
+.winner-crown{font-size:4rem;animation:bounce .6s infinite alternate;}
+@keyframes bounce{from{transform:translateY(0);}to{transform:translateY(-10px);}}
+
+/* ── SCREEN-SPECIFIC LAYOUTS ── */
+#screen-home .purple-top{padding-bottom:80px;}
+#screen-home .tab-bar{margin:24px 0 -16px;z-index:2;position:relative;}
+#screen-home .white-body{padding-top:30px;}
+
+#screen-generating .purple-top,
+#screen-player-wait .purple-top,
+#screen-lobby .purple-top{flex:1;justify-content:center;padding-bottom:24px;}
+#screen-generating .purple-top::before,
+#screen-player-wait .purple-top::before{display:none;}
+
+/* Question screens - full purple bg */
+#screen-question-host,#screen-question-player{background:linear-gradient(160deg,#8B5CF6 0%,#5B21B6 100%);}
+#screen-question-host .white-body-q,
+#screen-question-player .white-body-q{
+  background:var(--off-white);
+  width:100%;border-radius:28px 28px 0 0;
+  padding:20px 16px 40px;
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+
+/* Leaderboard / Final */
+#screen-leaderboard-mid,#screen-final{background:var(--off-white);}
+#screen-leaderboard-mid .screen-inner,#screen-final .screen-inner{
+  width:100%;max-width:500px;padding:32px 20px 40px;
+  display:flex;flex-direction:column;align-items:center;
+}
+.lb-trophy{background:linear-gradient(135deg,#7C3AED,#4A1FA8);width:100%;border-radius:24px;padding:28px 24px;text-align:center;margin-bottom:20px;color:#fff;}
+.lb-trophy h2{font-family:var(--font-h);font-size:1.8rem;font-weight:900;margin:.3rem 0;}
+.lb-trophy p{font-size:.9rem;opacity:.8;}
 </style>
 </head>
 <body>
 
 <div id="screen-home" class="screen active">
-  <div style="text-align:center;padding-top:40px;margin-bottom:1.5rem;">
-    <div class="logo">⚡ QuizBlast</div>
-    <div class="tagline">Real-time multiplayer quiz — powered by Groq Llama 3.3</div>
-  </div>
-  
-  <div class="tab-bar" style="max-width:520px;width:100%;">
-    <button class="tab active" onclick="switchTab('host',this)">🎮 Host Game</button>
-    <button class="tab" onclick="switchTab('join',this)">🙋 Join Game</button>
+  <div class="purple-top">
+    <div style="text-align:center;padding-top:20px;">
+      <div class="logo">⚡ Quiz<span>Blast</span></div>
+      <div class="tagline">Real-time multiplayer quiz · AI-powered</div>
+    </div>
+    <div class="tab-bar">
+      <button class="tab active" onclick="switchTab('host',this)">🎮 Host Game</button>
+      <button class="tab" onclick="switchTab('join',this)">🙋 Join Game</button>
+    </div>
   </div>
 
-  <div id="tab-host" class="card">
-    <div class="method-tabs">
-      <button class="method-tab active" id="mt-ai" onclick="setMethod('ai',this)">🤖 AI Generate</button>
-      <button class="method-tab" id="mt-manual" onclick="setMethod('manual',this)">✏️ Manual Create</button>
-    </div>
-    <div id="mode-ai">
-      <label>Quiz topic</label>
-      <input type="text" id="host-topic" placeholder="e.g. Bollywood, Cricket, Science, Tech..." />
-      <label>Number of questions</label>
-      <select id="host-qcount">
-        <option value="5">5 questions</option>
-        <option value="8">8 questions</option>
-        <option value="10" selected>10 questions</option>
-        <option value="15">15 questions</option>
-      </select>
-      <label>Difficulty</label>
-      <select id="host-difficulty">
-        <option value="easy">Easy</option>
-        <option value="medium" selected>Medium</option>
-        <option value="hard">Hard</option>
-      </select>
-    </div>
-    <div id="mode-manual" style="display:none;">
-      <label>Quiz title</label>
-      <input type="text" id="manual-title" placeholder="My Awesome Quiz" />
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;margin-bottom:4px;">
-        <label style="margin:0;">Questions</label>
-        <button class="btn btn-ghost btn-sm" onclick="addManualQ()">+ Add question</button>
+  <div class="white-body">
+    <div id="tab-host" class="card">
+      <div class="method-tabs">
+        <button class="method-tab active" id="mt-ai" onclick="setMethod('ai',this)">🤖 AI Generate</button>
+        <button class="method-tab" id="mt-manual" onclick="setMethod('manual',this)">✏️ Manual Create</button>
       </div>
-      <div id="manual-questions-list"></div>
-      <div id="manual-error" style="color:#e63946;font-size:.82rem;margin-top:6px;"></div>
+      <div id="mode-ai">
+        <label>Quiz Topic</label>
+        <input type="text" id="host-topic" placeholder="e.g. Bollywood, Cricket, Science…" />
+        <label>Number of Questions</label>
+        <select id="host-qcount">
+          <option value="5">5 questions</option>
+          <option value="8">8 questions</option>
+          <option value="10" selected>10 questions</option>
+          <option value="15">15 questions</option>
+        </select>
+        <label>Difficulty</label>
+        <select id="host-difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
+      <div id="mode-manual" style="display:none;">
+        <label>Quiz Title</label>
+        <input type="text" id="manual-title" placeholder="My Awesome Quiz" />
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;">
+          <label style="margin:0;">Questions</label>
+          <button class="btn btn-ghost btn-sm" onclick="addManualQ()">+ Add Question</button>
+        </div>
+        <div id="manual-questions-list" style="margin-top:10px;"></div>
+        <div id="manual-error" style="color:#F05252;font-size:.82rem;margin-top:6px;"></div>
+      </div>
+      <label>Time per Question</label>
+      <select id="host-time">
+        <option value="10">10 seconds</option>
+        <option value="15">15 seconds</option>
+        <option value="20" selected>20 seconds</option>
+        <option value="30">30 seconds</option>
+      </select>
+      <button class="btn btn-primary" onclick="hostGame()" id="host-btn">🚀 Generate &amp; Host</button>
+      <div id="host-error" style="color:#F05252;font-size:.82rem;margin-top:8px;"></div>
     </div>
-    <label>Time per question</label>
-    <select id="host-time">
-      <option value="10">10 seconds</option>
-      <option value="15">15 seconds</option>
-      <option value="20" selected>20 seconds</option>
-      <option value="30">30 seconds</option>
-    </select>
-    <button class="btn btn-primary" onclick="hostGame()" id="host-btn">🚀 Generate &amp; Host</button>
-    <div id="host-error" style="color:#e63946;font-size:.82rem;margin-top:8px;"></div>
-  </div>
 
-  <div id="tab-join" class="card" style="display:none;">
-    <h2 style="font-size:1.2rem;margin-bottom:.75rem;">Join a game</h2>
-    <label>Room code (4 digits)</label>
-    <input type="text" id="join-code" placeholder="1234" maxlength="4"
-      style="font-size:2rem;text-align:center;letter-spacing:10px;font-family:var(--font-h);font-weight:900;" />
-    <label>Your nickname</label>
-    <input type="text" id="join-name" placeholder="e.g. QuizKing99" maxlength="20" />
-    <button class="btn btn-success" onclick="joinGame()">🎯 Join Room</button>
-    <div id="join-error" style="color:#e63946;font-size:.82rem;margin-top:8px;"></div>
+    <div id="tab-join" class="card" style="display:none;">
+      <div style="text-align:center;margin-bottom:20px;">
+        <div style="font-size:2.5rem;">🎯</div>
+        <h2 style="font-family:var(--font-h);font-size:1.3rem;color:var(--text-dark);margin-top:6px;">Join a Game</h2>
+      </div>
+      <label>Room Code</label>
+      <input type="text" id="join-code" placeholder="1 2 3 4" maxlength="4"
+        style="font-size:2.2rem;text-align:center;letter-spacing:14px;font-family:var(--font-h);font-weight:900;" />
+      <label>Your Nickname</label>
+      <input type="text" id="join-name" placeholder="e.g. QuizKing99" maxlength="20" />
+      <button class="btn btn-success" onclick="joinGame()">🎯 Join Room</button>
+      <div id="join-error" style="color:#F05252;font-size:.82rem;margin-top:8px;"></div>
+    </div>
   </div>
 </div>
 
+<!-- GENERATING -->
 <div id="screen-generating" class="screen">
-  <div style="text-align:center;margin-top:60px;">
-    <div style="font-size:3.5rem;margin-bottom:1rem;">🤖</div>
-    <h2 style="font-size:1.7rem;">Generating your quiz</h2>
-    <p style="color:var(--muted);margin:.5rem 0 2rem;">Groq Llama AI crafting questions on <strong id="gen-topic">your topic</strong></p>
-    <div class="loading-dots"><span>•</span><span>•</span><span>•</span></div>
-    <div style="margin-top:2rem;max-width:360px;">
-      <div class="shimmer" style="width:80%;margin:0 auto;"></div>
-      <div class="shimmer" style="width:60%;margin:0 auto;"></div>
-      <div class="shimmer" style="width:72%;margin:0 auto;"></div>
+  <div class="purple-top" style="flex:1;justify-content:center;align-items:center;padding-bottom:0;">
+    <div style="text-align:center;">
+      <div style="font-size:4rem;margin-bottom:1rem;animation:bounce .8s infinite alternate;">🤖</div>
+      <h2 style="font-family:var(--font-h);font-size:1.8rem;font-weight:900;color:#fff;">Crafting your quiz…</h2>
+      <p style="color:rgba(255,255,255,.7);margin:.5rem 0 2rem;font-size:.95rem;">AI generating questions on <strong id="gen-topic" style="color:#FDE68A;">your topic</strong></p>
+      <div class="loading-dots"><span>•</span><span>•</span><span>•</span></div>
+      <div style="margin-top:2rem;max-width:320px;width:100%;">
+        <div class="shimmer" style="width:80%;margin:0 auto;"></div>
+        <div class="shimmer" style="width:60%;margin:0 auto;"></div>
+        <div class="shimmer" style="width:72%;margin:0 auto;"></div>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- LOBBY (HOST) -->
 <div id="screen-lobby" class="screen">
-  <div style="text-align:center;width:100%;max-width:500px;">
-    <div class="logo" style="font-size:1.6rem;">⚡ QuizBlast</div>
-    <p style="color:var(--muted);margin-bottom:.4rem;font-size:.88rem;">📱 Players scan QR or type the code</p>
-    <div class="room-code" id="lobby-code">—</div>
-    <div id="qr-wrap"></div>
-    <div class="divider"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;">
-      <h3 style="font-size:1.05rem;"><span class="live-dot"></span>Players <span class="badge" id="player-count">0</span></h3>
-      <span style="font-size:.82rem;color:var(--muted);" id="quiz-info-lobby"></span>
+  <div class="purple-top" style="padding-bottom:72px;">
+    <div style="text-align:center;width:100%;max-width:500px;">
+      <div class="logo" style="font-size:1.8rem;margin-bottom:4px;">⚡ QuizBlast</div>
+      <p style="color:rgba(255,255,255,.7);font-size:.85rem;margin-bottom:16px;">📱 Scan QR or type the code to join</p>
+      <div class="room-code" id="lobby-code">—</div>
+      <div id="qr-wrap" style="margin:12px auto;"></div>
     </div>
-    <div class="players-grid" id="players-list"></div>
-    <button class="btn btn-primary" id="start-btn" onclick="hostStartGame()" disabled>▶ Start game</button>
-    <p style="font-size:.76rem;color:var(--muted);margin-top:7px;" id="start-hint">Need at least 1 player to start</p>
+  </div>
+  <div class="white-body" style="margin-top:-40px;border-radius:32px 32px 0 0;padding-top:24px;">
+    <div style="width:100%;max-width:500px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <h3 style="font-family:var(--font-h);font-size:1.05rem;color:var(--text-dark);"><span class="live-dot"></span>Players <span class="badge" style="background:var(--purple);color:#fff;" id="player-count">0</span></h3>
+        <span style="font-size:.82rem;color:var(--text-mid);" id="quiz-info-lobby"></span>
+      </div>
+      <div class="players-grid" id="players-list" style="justify-content:flex-start;"></div>
+      <div class="divider"></div>
+      <button class="btn btn-primary" id="start-btn" onclick="hostStartGame()" disabled>▶ Start Game</button>
+      <p style="font-size:.78rem;color:var(--text-mid);margin-top:8px;text-align:center;" id="start-hint">Need at least 1 player to start</p>
+    </div>
   </div>
 </div>
 
+<!-- PLAYER WAIT -->
 <div id="screen-player-wait" class="screen">
-  <div style="text-align:center;margin-top:60px;width:100%;max-width:400px;">
-    <div style="font-size:3.5rem;margin-bottom:1rem;">⏳</div>
-    <h2>You're in!</h2>
-    <p style="color:var(--muted);margin:.5rem 0 1.5rem;">Waiting for the host to start...</p>
-    <div style="background:rgba(42,157,143,.15);border:1.5px solid #2a9d8f;border-radius:14px;padding:14px 28px;display:inline-block;margin-bottom:1.5rem;">
-      <span style="font-family:var(--font-h);font-size:1.5rem;font-weight:900;color:#2a9d8f;" id="wait-name">Player</span>
+  <div style="background:linear-gradient(160deg,#8B5CF6,#5B21B6);flex:1;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;">
+    <div style="text-align:center;">
+      <div style="font-size:4rem;margin-bottom:16px;animation:bounce .8s infinite alternate;">⏳</div>
+      <h2 style="font-family:var(--font-h);font-size:2rem;font-weight:900;color:#fff;">You're in!</h2>
+      <p style="color:rgba(255,255,255,.7);margin:.5rem 0 2rem;">Waiting for the host to start…</p>
+      <div style="background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3);border-radius:20px;padding:16px 40px;display:inline-block;margin-bottom:1.5rem;">
+        <span style="font-family:var(--font-h);font-size:1.8rem;font-weight:900;color:#FDE68A;" id="wait-name">Player</span>
+      </div>
+      <br>
+      <span style="font-size:.85rem;color:rgba(255,255,255,.65);"><span class="live-dot"></span><span id="wait-players-count">1 player</span> in lobby</span>
     </div>
-    <br>
-    <span style="font-size:.82rem;color:var(--muted);"><span class="live-dot"></span><span id="wait-players-count">1 player</span> in lobby</span>
   </div>
 </div>
 
+<!-- QUESTION (HOST) -->
 <div id="screen-question-host" class="screen">
-  <div style="width:100%;max-width:720px;display:flex;flex-direction:column;align-items:center;">
-    <div style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:.4rem;">
-      <span class="q-counter" id="qnum-host">Q 1/10</span>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:.82rem;color:var(--muted);" id="answers-count"></span>
-        <div style="width:44px;height:44px;position:relative;">
-          <svg width="44" height="44" style="position:absolute;top:0;left:0;">
-            <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="4"/>
-            <circle id="timer-arc-host" cx="22" cy="22" r="18" fill="none" stroke="#f4a261" stroke-width="4" stroke-dasharray="113" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 22 22)"/>
+  <div style="background:linear-gradient(160deg,#8B5CF6,#5B21B6);width:100%;padding:24px 16px 16px;display:flex;flex-direction:column;align-items:center;">
+    <div class="q-header">
+      <span class="q-counter" id="qnum-host">Q 1 / 10</span>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-size:.82rem;color:rgba(255,255,255,.7);font-weight:700;" id="answers-count">0 answered</span>
+        <div style="width:48px;height:48px;position:relative;">
+          <svg width="48" height="48" style="position:absolute;top:0;left:0;">
+            <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="4"/>
+            <circle id="timer-arc-host" cx="24" cy="24" r="20" fill="none" stroke="#FDE68A" stroke-width="4" stroke-dasharray="126" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 24 24)"/>
           </svg>
           <span class="timer-num" id="timer-host">20</span>
         </div>
       </div>
     </div>
-    <div class="progress-bar"><div class="progress-fill" id="progress-host" style="width:0%"></div></div>
-    <div class="question-card">
-      <p style="font-size:.75rem;color:var(--muted);margin-bottom:.3rem;">Host view</p>
-      <div class="question-text" id="q-text-host">...</div>
+    <div class="progress-bar" style="max-width:700px;"><div class="progress-fill" id="progress-host" style="width:0%"></div></div>
+    <div class="question-card" style="margin-top:8px;">
+      <p style="font-size:.72rem;color:var(--text-mid);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Host View</p>
+      <div class="question-text" id="q-text-host">…</div>
     </div>
-    <div class="answers-grid" style="margin-top:.75rem;">
+    <div class="answers-grid" style="max-width:700px;">
       <div class="ans-btn" id="h-ans-0"><div class="ans-icon">▲</div><span id="h-a0">A</span></div>
       <div class="ans-btn" id="h-ans-1"><div class="ans-icon">◆</div><span id="h-a1">B</span></div>
       <div class="ans-btn" id="h-ans-2"><div class="ans-icon">●</div><span id="h-a2">C</span></div>
       <div class="ans-btn" id="h-ans-3"><div class="ans-icon">■</div><span id="h-a3">D</span></div>
     </div>
+    <button class="btn btn-warn" id="skip-timer-btn" onclick="skipTimer()" style="max-width:260px;margin-top:20px;">⏩ Skip Timer</button>
   </div>
 </div>
 
+<!-- QUESTION (PLAYER) -->
 <div id="screen-question-player" class="screen">
-  <div style="width:100%;max-width:720px;display:flex;flex-direction:column;align-items:center;">
-    <div style="display:flex;justify-content:space-between;align-items:center;width:100%;margin-bottom:.4rem;">
-      <span class="q-counter" id="qnum-player">Q 1/10</span>
-      <div style="width:44px;height:44px;position:relative;">
-        <svg width="44" height="44" style="position:absolute;top:0;left:0;">
-          <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="4"/>
-          <circle id="timer-arc-player" cx="22" cy="22" r="18" fill="none" stroke="#f4a261" stroke-width="4" stroke-dasharray="113" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 22 22)"/>
+  <div style="background:linear-gradient(160deg,#8B5CF6,#5B21B6);width:100%;padding:24px 16px 16px;display:flex;flex-direction:column;align-items:center;">
+    <div class="q-header">
+      <span class="q-counter" id="qnum-player">Q 1 / 10</span>
+      <div style="width:48px;height:48px;position:relative;">
+        <svg width="48" height="48" style="position:absolute;top:0;left:0;">
+          <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="4"/>
+          <circle id="timer-arc-player" cx="24" cy="24" r="20" fill="none" stroke="#FDE68A" stroke-width="4" stroke-dasharray="126" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 24 24)"/>
         </svg>
         <span class="timer-num" id="timer-player">20</span>
       </div>
     </div>
-    <div class="progress-bar"><div class="progress-fill" id="progress-player" style="width:0%"></div></div>
-    <div class="question-card" style="margin-bottom:.75rem;">
-      <div class="question-text" id="q-text-player">...</div>
+    <div class="progress-bar" style="max-width:700px;"><div class="progress-fill" id="progress-player" style="width:0%"></div></div>
+    <div class="question-card" style="margin-top:8px;margin-bottom:16px;">
+      <div class="question-text" id="q-text-player">…</div>
     </div>
-    <div class="answers-grid" id="player-answers-grid">
+    <div class="answers-grid" id="player-answers-grid" style="max-width:700px;">
       <button class="ans-btn" onclick="selectAnswer(0)"><div class="ans-icon">▲</div><span id="p-a0">A</span></button>
       <button class="ans-btn" onclick="selectAnswer(1)"><div class="ans-icon">◆</div><span id="p-a1">B</span></button>
       <button class="ans-btn" onclick="selectAnswer(2)"><div class="ans-icon">●</div><span id="p-a2">C</span></button>
       <button class="ans-btn" onclick="selectAnswer(3)"><div class="ans-icon">■</div><span id="p-a3">D</span></button>
     </div>
-    <div id="player-feedback" style="height:70px;width:100%;max-width:700px;margin-top:.5rem;"></div>
+    <div id="player-feedback" style="height:72px;width:100%;max-width:700px;margin-top:8px;"></div>
   </div>
 </div>
 
+<!-- LEADERBOARD MID -->
 <div id="screen-leaderboard-mid" class="screen">
-  <div style="width:100%;max-width:480px;text-align:center;">
-    <h2 style="font-size:1.9rem;margin-bottom:.4rem;">🏆 Leaderboard</h2>
-    <p style="color:var(--muted);margin-bottom:1.3rem;" id="lb-subtitle"></p>
-    <div class="scoreboard" id="scoreboard-mid"></div>
-    <button class="btn btn-primary" onclick="hostNextQuestion()" id="next-q-btn" style="margin-top:1.3rem;display:none;">Next question →</button>
-    <p style="color:var(--muted);font-size:.85rem;margin-top:1rem;" id="lb-wait-msg"></p>
+  <div class="screen-inner" style="width:100%;max-width:500px;padding:32px 20px 40px;display:flex;flex-direction:column;align-items:center;">
+    <div class="lb-trophy">
+      <div style="font-size:3rem;">🏆</div>
+      <h2 style="font-family:var(--font-h);font-size:1.8rem;font-weight:900;margin:.3rem 0;">Leaderboard</h2>
+      <p style="opacity:.8;" id="lb-subtitle">After Question 1</p>
+    </div>
+    <div class="scoreboard" id="scoreboard-mid" style="width:100%;"></div>
+    <button class="btn btn-primary" onclick="hostNextQuestion()" id="next-q-btn" style="max-width:400px;display:none;">Next Question →</button>
+    <p style="color:var(--text-mid);font-size:.85rem;margin-top:12px;text-align:center;" id="lb-wait-msg"></p>
   </div>
 </div>
 
+<!-- FINAL -->
 <div id="screen-final" class="screen">
-  <div style="width:100%;max-width:480px;text-align:center;">
-    <div class="winner-crown">🏆</div>
-    <h2 style="font-size:2rem;margin:.5rem 0;">Game over!</h2>
-    <p style="color:#f4a261;font-family:var(--font-h);font-size:1.15rem;margin-bottom:1.3rem;" id="winner-name"></p>
-    <div class="scoreboard" id="scoreboard-final"></div>
-    <button class="btn btn-primary" onclick="resetGame()" style="margin-top:1.3rem;">🔄 Play again</button>
+  <div style="width:100%;max-width:500px;padding:32px 20px 40px;display:flex;flex-direction:column;align-items:center;">
+    <div class="lb-trophy" style="background:linear-gradient(135deg,#7C3AED,#4A1FA8);">
+      <div class="winner-crown">🏆</div>
+      <h2 style="font-family:var(--font-h);font-size:2rem;font-weight:900;margin:.4rem 0;">Game Over!</h2>
+      <p style="color:#FDE68A;font-weight:800;" id="winner-name">Calculating…</p>
+    </div>
+    <div class="scoreboard" id="scoreboard-final" style="width:100%;margin-bottom:8px;"></div>
+    <button class="btn btn-primary" id="final-reset-btn" onclick="resetGame()" style="max-width:400px;display:none;">🔄 Host New Quiz</button>
+    <p style="color:var(--text-mid);font-size:.85rem;margin-top:12px;text-align:center;" id="final-player-msg">Waiting for Host to reset…</p>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-// ─── CONFIG (HARDCODED) ───────────────────────────────────────────────────────
 const FB_URL = 'https://quiz-8016d-default-rtdb.asia-southeast1.firebasedatabase.app';
 const GROQ_KEY = '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';
 
-// ─── FIREBASE REST ────────────────────────────────────────────────────────────
-async function dbSet(path, val) {
-  await fetch(`${FB_URL}/${path}.json`, {
-    method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(val)
-  });
-}
-async function dbGet(path) {
-  const r = await fetch(`${FB_URL}/${path}.json`); return r.json();
-}
-async function dbUpdate(path, val) {
-  await fetch(`${FB_URL}/${path}.json`, {
-    method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify(val)
-  });
-}
-async function dbDelete(path) { await fetch(`${FB_URL}/${path}.json`, {method:'DELETE'}); }
+async function dbSet(path,val){await fetch(`${FB_URL}/${path}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(val)});}
+async function dbGet(path){const r=await fetch(`${FB_URL}/${path}.json`);return r.json();}
+async function dbUpdate(path,val){await fetch(`${FB_URL}/${path}.json`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(val)});}
+async function dbDelete(path){await fetch(`${FB_URL}/${path}.json`,{method:'DELETE'});}
+const _polls={};
+function dbListen(path,cb){dbStopListen(path);let last;const run=async()=>{try{const v=await dbGet(path);const s=JSON.stringify(v);if(s!==last){last=s;cb(v);}}catch(e){}};run();_polls[path]=setInterval(run,1200);}
+function dbStopListen(path){clearInterval(_polls[path]);delete _polls[path];}
+function dbStopAll(){Object.keys(_polls).forEach(p=>dbStopListen(p));}
 
-// Polling listener
-const _polls = {};
-function dbListen(path, cb) {
-  dbStopListen(path);
-  let last;
-  const run = async () => {
-    try {
-      const v = await dbGet(path);
-      const s = JSON.stringify(v);
-      if (s !== last) { last=s; cb(v); }
-    } catch(e){}
-  };
-  run();
-  _polls[path] = setInterval(run, 1200);
-}
-function dbStopListen(path) { clearInterval(_polls[path]); delete _polls[path]; }
-function dbStopAll() { Object.keys(_polls).forEach(p => dbStopListen(p)); }
+let roomCode=null,isHost=false,myId=null,myName=null;
+let questions=[],timePerQ=20,timerInt=null,timeLeft=20;
+let selectedAnswer=null,currentQ=0;
 
-// ─── STATE ────────────────────────────────────────────────────────────────────
-let roomCode=null, isHost=false, myId=null, myName=null;
-let questions=[], timePerQ=20, timerInt=null, timeLeft=20;
-let selectedAnswer=null, currentQ=0;
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function switchTab(tab,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('tab-host').style.display=tab==='host'?'block':'none';document.getElementById('tab-join').style.display=tab==='join'?'block':'none';}
+function genCode(){return Math.floor(1000+Math.random()*9000).toString();}
 
-// ─── UI ───────────────────────────────────────────────────────────────────────
-function show(id) {
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-function switchTab(tab, el) {
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('tab-host').style.display = tab==='host'?'block':'none';
-  document.getElementById('tab-join').style.display  = tab==='join' ?'block':'none';
-}
-function genCode() { return Math.floor(1000+Math.random()*9000).toString(); }
-
-// ─── METHOD TOGGLE ────────────────────────────────────────────────────────────
 let currentMethod='ai';
-function setMethod(m,el) {
+function setMethod(m,el){
   currentMethod=m;
   document.querySelectorAll('.method-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('mode-ai').style.display     = m==='ai'    ?'block':'none';
-  document.getElementById('mode-manual').style.display = m==='manual'?'block':'none';
-  document.getElementById('host-btn').textContent = m==='ai'?'🚀 Generate & Host':'🎮 Host Quiz';
+  document.getElementById('mode-ai').style.display=m==='ai'?'block':'none';
+  document.getElementById('mode-manual').style.display=m==='manual'?'block':'none';
+  document.getElementById('host-btn').textContent=m==='ai'?'🚀 Generate & Host':'🎮 Host Quiz';
 }
 
-// ─── MANUAL BUILDER ───────────────────────────────────────────────────────────
 let mqCount=0;
-function addManualQ() {
-  mqCount++;
-  const n=mqCount, colors=['#e63946','#f4a261','#2a9d8f','#457b9d'], L=['A','B','C','D'];
-  const div=document.createElement('div');
-  div.className='q-editor'; div.id='qe-'+n;
+function addManualQ(){
+  mqCount++;const n=mqCount,colors=['#4D8AF0','#F05252','#F6A623','#22C55E'],L=['A','B','C','D'];
+  const div=document.createElement('div');div.className='q-editor';div.id='qe-'+n;
   div.innerHTML=`<div class="q-editor-num">Question ${n}</div>
     <button class="q-del" onclick="document.getElementById('qe-${n}').remove()">✕</button>
     <textarea id="qq-${n}" rows="2" placeholder="Type your question..."></textarea>
@@ -362,358 +453,247 @@ function addManualQ() {
         <input type="text" id="qa-${n}-${i}" placeholder="Option ${L[i]}" />
       </div>`).join('')}</div>
     <div style="display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap;">
-      <span style="font-size:.78rem;color:var(--muted);font-weight:700;">Correct:</span>
+      <span style="font-size:.78rem;color:var(--text-mid);font-weight:700;">Correct:</span>
       ${[0,1,2,3].map(i=>`<label style="display:flex;align-items:center;gap:4px;cursor:pointer;font-size:.78rem;">
-        <input type="radio" name="cr-${n}" value="${i}" ${i===0?'checked':''} style="width:auto;margin:0;accent-color:#2a9d8f;" />
+        <input type="radio" name="cr-${n}" value="${i}" ${i===0?'checked':''} style="width:auto;margin:0;accent-color:var(--purple);" />
         <span style="color:${colors[i]};font-weight:800;">${L[i]}</span></label>`).join('')}
     </div>`;
   document.getElementById('manual-questions-list').appendChild(div);
 }
-function getManualQuestions() {
+function getManualQuestions(){
   const qs=[];
   document.querySelectorAll('.q-editor').forEach(el=>{
-    const id=el.id.replace('qe-','');
-    const question=(document.getElementById('qq-'+id)?.value||'').trim();
+    const id=el.id.replace('qe-','');const question=(document.getElementById('qq-'+id)?.value||'').trim();
     const answers=[0,1,2,3].map(i=>(document.getElementById(`qa-${id}-${i}`)?.value||'').trim());
     const cr=document.querySelector(`input[name="cr-${id}"]:checked`);
-    if(question&&answers.every(a=>a)) qs.push({question,answers,correct:cr?+cr.value:0});
+    if(question&&answers.every(a=>a))qs.push({question,answers,correct:cr?+cr.value:0});
   });
   return qs;
 }
 
-// ─── AI GENERATOR (GROQ ENGINE) ───────────────────────────────────────────────
-async function generateQuestions(topic, count, difficulty, key) {
-  const prompt = `Generate a JSON object containing exactly ${count} multiple choice quiz questions about "${topic}" at a ${difficulty} difficulty level.
-Return ONLY a valid JSON object matching this structural design precisely without markdown code wrappers, comments, formatting breaks, or extra text:
-{
-  "questions": [
-    {
-      "question": "The question text string?",
-      "answers": ["Option A", "Option B", "Option C", "Option D"],
-      "correct": 0
-    }
-  ]
-}
-Note: "correct" must be the index (0, 1, 2, or 3) of the true answer within the answers array. Ensure content accuracy.`;
-
-  const url = `https://api.groq.com/openai/v1/chat/completions`;
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${key}`
-    },
-    body: JSON.stringify({ 
-      model: "llama-3.3-70b-versatile",
-      response_format: { type: "json_object" },
-      messages: [{ role: "user", content: prompt }] 
-    })
+async function generateQuestions(topic,count,difficulty,key){
+  const prompt=`Generate a JSON object containing exactly ${count} multiple choice quiz questions about "${topic}" at ${difficulty} difficulty.
+Return ONLY valid JSON, no markdown:
+{"questions":[{"question":"...?","answers":["A","B","C","D"],"correct":0}]}
+"correct" is the 0-based index of the correct answer.`;
+  const response=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+    method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${key}`},
+    body:JSON.stringify({model:"llama-3.3-70b-versatile",response_format:{type:"json_object"},messages:[{role:"user",content:prompt}]})
   });
-
-  if (!response.ok) throw new Error('API server returned an error.');
-  const data = await response.json();
-  let txt = data.choices?.[0]?.message?.content || '';
-  const parsed = JSON.parse(txt.trim());
-  if (!parsed.questions || !Array.isArray(parsed.questions)) throw new Error('Invalid signature structure returned.');
+  if(!response.ok)throw new Error('API error');
+  const data=await response.json();let txt=data.choices?.[0]?.message?.content||'';
+  const parsed=JSON.parse(txt.trim());
+  if(!parsed.questions||!Array.isArray(parsed.questions))throw new Error('Bad response format');
   return parsed.questions;
 }
 
-// ─── HOST GAME ────────────────────────────────────────────────────────────────
-async function hostGame() {
-  const err=document.getElementById('host-error');
-  err.textContent='';
-  const tpq=parseInt(document.getElementById('host-time').value);
-  let qs=[];
-
-  if (currentMethod==='manual') {
+async function hostGame(){
+  const err=document.getElementById('host-error');err.textContent='';
+  const tpq=parseInt(document.getElementById('host-time').value);let qs=[];
+  if(currentMethod==='manual'){
     qs=getManualQuestions();
     if(qs.length<2){document.getElementById('manual-error').textContent='Add at least 2 complete questions.';return;}
   } else {
     const topic=document.getElementById('host-topic').value.trim();
     if(!topic){err.textContent='Please enter a topic!';return;}
-    document.getElementById('gen-topic').textContent=topic;
-    show('screen-generating');
-    try {
-      qs=await generateQuestions(topic, document.getElementById('host-qcount').value,
-        document.getElementById('host-difficulty').value, GROQ_KEY);
-    } catch(e) {
-      show('screen-home');
-      err.textContent='❌ '+(e.message||'Generation failed. Verify connection settings.');
-      return;
-    }
+    document.getElementById('gen-topic').textContent=topic;show('screen-generating');
+    try{qs=await generateQuestions(topic,document.getElementById('host-qcount').value,document.getElementById('host-difficulty').value,GROQ_KEY);}
+    catch(e){show('screen-home');err.textContent='❌ '+(e.message||'Generation failed.');return;}
   }
-
-  questions=qs; timePerQ=tpq; isHost=true;
-  roomCode=genCode(); myId='host'; myName='Host';
-
-  await dbSet(`rooms/${roomCode}`, {
-    status:'lobby', questions:qs, timePerQ:tpq, currentQ:0, createdAt:Date.now()
-  });
-
-  setupLobby();
-  show('screen-lobby');
+  questions=qs;timePerQ=tpq;isHost=true;roomCode=genCode();myId='host';myName='Host';
+  await dbSet(`rooms/${roomCode}`,{status:'lobby',questions:qs,timePerQ:tpq,currentQ:0,createdAt:Date.now()});
+  setupLobby();show('screen-lobby');
 }
 
-function setupLobby() {
+function setupLobby(){
   document.getElementById('lobby-code').textContent=roomCode;
-  document.getElementById('quiz-info-lobby').textContent=`${questions.length}Q • ${timePerQ}s each`;
+  document.getElementById('quiz-info-lobby').textContent=`${questions.length}Q · ${timePerQ}s each`;
   const joinURL=window.location.href.split('?')[0]+'?room='+roomCode;
-  const qw=document.getElementById('qr-wrap');
-  qw.innerHTML='';
-  try {
-    new QRCode(qw,{text:joinURL,width:150,height:150,colorDark:'#1a1a2e',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
-  } catch(e) {
-    qw.innerHTML=`<div style="width:150px;height:150px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:8px;color:#1a1a2e;font-weight:900;font-size:2rem;letter-spacing:4px;">${roomCode}</div>`;
-  }
-  dbListen(`rooms/${roomCode}/players`, (players) => {
+  const qw=document.getElementById('qr-wrap');qw.innerHTML='';
+  try{new QRCode(qw,{text:joinURL,width:140,height:140,colorDark:'#4A1FA8',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});}
+  catch(e){qw.innerHTML=`<div style="width:140px;height:140px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:8px;color:#4A1FA8;font-weight:900;font-size:2rem;">${roomCode}</div>`;}
+  dbListen(`rooms/${roomCode}/players`,(players)=>{
     const list=players?Object.values(players):[];
     document.getElementById('player-count').textContent=list.length;
     document.getElementById('players-list').innerHTML=list.map(p=>`<div class="player-chip">${p.name}</div>`).join('');
     document.getElementById('start-btn').disabled=list.length===0;
-    document.getElementById('start-hint').textContent=list.length===0
-      ?'Need at least 1 player to start'
-      :`${list.length} player${list.length>1?'s':''} ready!`;
+    document.getElementById('start-hint').textContent=list.length===0?'Need at least 1 player to start':`${list.length} player${list.length>1?'s':''} ready!`;
   });
 }
 
-async function hostStartGame() {
-  await dbUpdate(`rooms/${roomCode}`,{status:'playing',currentQ:0});
-  showQuestion(0);
-}
+async function hostStartGame(){await dbUpdate(`rooms/${roomCode}`,{status:'playing',currentQ:0});showQuestion(0);}
 
-// ─── JOIN GAME ────────────────────────────────────────────────────────────────
-async function joinGame() {
-  const code=document.getElementById('join-code').value.trim();
-  const name=document.getElementById('join-name').value.trim();
+async function skipTimer(){if(!isHost)return;clearInterval(timerInt);timeLeft=0;updateTimerUI();await endQuestion();}
+
+async function joinGame(){
+  const code=document.getElementById('join-code').value.trim();const name=document.getElementById('join-name').value.trim();
   const err=document.getElementById('join-error');
   if(code.length!==4){err.textContent='Enter 4-digit code';return;}
   if(!name){err.textContent='Enter your nickname';return;}
-  err.style.color='var(--muted)';err.textContent='Checking room…';
-  try {
+  err.style.color='var(--text-mid)';err.textContent='Connecting…';
+  try{
     const room=await dbGet(`rooms/${code}`);
-    if(!room){err.style.color='#e63946';err.textContent='Room not found! Check the code.';return;}
-    if(room.status!=='lobby'){err.style.color='#e63946';err.textContent='Game already started!';return;}
-    roomCode=code; isHost=false; myName=name;
-    myId='p_'+Date.now();
-    questions=room.questions; timePerQ=room.timePerQ;
+    if(!room){err.style.color='#F05252';err.textContent='Room not found!';return;}
+    if(room.status!=='lobby'){err.style.color='#F05252';err.textContent='Game already running!';return;}
+    roomCode=code;isHost=false;myName=name;myId='p_'+Date.now();
+    questions=room.questions;timePerQ=room.timePerQ;
     await dbSet(`rooms/${roomCode}/players/${myId}`,{name,id:myId,score:0,joinedAt:Date.now()});
-    document.getElementById('wait-name').textContent=name;
-    err.textContent='';
-    show('screen-player-wait');
+    document.getElementById('wait-name').textContent=name;err.textContent='';show('screen-player-wait');
     listenAsPlayer();
-  } catch(e) {
-    err.style.color='#e63946';
-    err.textContent='Error: '+(e.message||'Could not connect. Check network configuration.');
-  }
+  }catch(e){err.style.color='#F05252';err.textContent='Error connecting.';}
 }
 
-function listenAsPlayer() {
+function listenAsPlayer(){
   dbListen(`rooms/${roomCode}/players`,(players)=>{
     const c=players?Object.keys(players).length:0;
-    document.getElementById('wait-players-count').textContent=`${c} player${c!==1?'s':''}`;
+    document.getElementById('wait-players-count').textContent=`${c} player${c!==1?'s':''} in room`;
   });
   dbListen(`rooms/${roomCode}/status`,(status)=>{
-    if(status==='playing') {
+    if(status==='playing'){
       dbGet(`rooms/${roomCode}/currentQ`).then(q=>{
         if(q!=null&&q!==currentQ){currentQ=q;showQuestion(currentQ);}
         else if(q===0&&currentQ===0){showQuestion(0);}
       });
-    } else if(status==='leaderboard') {
+    } else if(status==='leaderboard'){
       dbGet(`rooms/${roomCode}`).then(room=>{showLeaderboard(room,false);});
-    } else if(status==='finished') {
+    } else if(status==='finished'){
       dbGet(`rooms/${roomCode}/players`).then(p=>showFinalResults(p));
-    }
+    } else if(status===null||status===undefined){resetLocalUI();}
   });
   dbListen(`rooms/${roomCode}/currentQ`,(q)=>{
     if(q==null)return;
-    dbGet(`rooms/${roomCode}/status`).then(status=>{
-      if(status==='playing'&&q!==currentQ){currentQ=q;showQuestion(q);}
-    });
+    dbGet(`rooms/${roomCode}/status`).then(status=>{if(status==='playing'&&q!==currentQ){currentQ=q;showQuestion(q);}});
   });
 }
 
-// ─── SHOW QUESTION ────────────────────────────────────────────────────────────
-function showQuestion(idx) {
-  const q=questions[idx]; selectedAnswer=null; timeLeft=timePerQ;
-  currentQ=idx;
-  clearInterval(timerInt);
-
-  if (isHost) {
+function showQuestion(idx){
+  const q=questions[idx];selectedAnswer=null;timeLeft=timePerQ;currentQ=idx;clearInterval(timerInt);
+  if(isHost){
     show('screen-question-host');
-    document.getElementById('qnum-host').textContent=`Question ${idx+1}/${questions.length}`;
+    document.getElementById('qnum-host').textContent=`Q ${idx+1} / ${questions.length}`;
     document.getElementById('q-text-host').textContent=q.question;
     document.getElementById('answers-count').textContent='0 answered';
-    [0,1,2,3].forEach(i=>{
-      const el=document.getElementById('h-a'+i); if(el) el.textContent=q.answers[i];
-      const btn=document.getElementById('h-ans-'+i); if(btn) btn.style.border='none';
-    });
-    dbSet(`rooms/${roomCode}/answersCount`, 0);
-    dbListen(`rooms/${roomCode}/answersCount`, (c)=>{
-      document.getElementById('answers-count').textContent=`${c||0} answered`;
-    });
+    [0,1,2,3].forEach(i=>{const el=document.getElementById('h-a'+i);if(el)el.textContent=q.answers[i];});
+    dbSet(`rooms/${roomCode}/answersCount`,0);
+    dbListen(`rooms/${roomCode}/answersCount`,(c)=>{document.getElementById('answers-count').textContent=`${c||0} answered`;});
   } else {
     show('screen-question-player');
-    document.getElementById('qnum-player').textContent=`Question ${idx+1}/${questions.length}`;
+    document.getElementById('qnum-player').textContent=`Q ${idx+1} / ${questions.length}`;
     document.getElementById('q-text-player').textContent=q.question;
     document.getElementById('player-feedback').innerHTML='';
-    const grid=document.getElementById('player-answers-grid');
-    grid.style.pointerEvents='auto';
+    const grid=document.getElementById('player-answers-grid');grid.style.pointerEvents='auto';
     [0,1,2,3].forEach(i=>{
-      const el=document.getElementById('p-a'+i); if(el) el.textContent=q.answers[i];
-      const btn=grid.children[i]; if(btn) { btn.disabled=false; btn.style.opacity='1'; btn.style.border='none'; }
+      const el=document.getElementById('p-a'+i);if(el)el.textContent=q.answers[i];
+      const btn=grid.children[i];if(btn){btn.disabled=false;btn.style.opacity='1';btn.style.border='none';}
     });
   }
-
   updateTimerUI();
-  timerInt=setInterval(()=>{
-    timeLeft--; updateTimerUI();
-    if(timeLeft<=0) { clearInterval(timerInt); endQuestion(); }
-  },1000);
+  timerInt=setInterval(()=>{timeLeft--;updateTimerUI();if(timeLeft<=0){clearInterval(timerInt);endQuestion();}},1000);
 }
 
-function updateTimerUI() {
-  const pct=(timeLeft/timePerQ)*113;
-  const num=Math.max(0,timeLeft);
+function updateTimerUI(){
+  const maxDash=126;const pct=(timeLeft/timePerQ)*maxDash;const num=Math.max(0,timeLeft);
   if(isHost){
     document.getElementById('timer-host').textContent=num;
-    document.getElementById('timer-arc-host').style.strokeDashoffset=113-pct;
+    document.getElementById('timer-arc-host').style.strokeDashoffset=maxDash-pct;
     document.getElementById('progress-host').style.width=((timePerQ-timeLeft)/timePerQ)*100+'%';
   } else {
     document.getElementById('timer-player').textContent=num;
-    document.getElementById('timer-arc-player').style.strokeDashoffset=113-pct;
+    document.getElementById('timer-arc-player').style.strokeDashoffset=maxDash-pct;
     document.getElementById('progress-player').style.width=((timePerQ-timeLeft)/timePerQ)*100+'%';
   }
 }
 
-// ─── PLAYER ACTION ────────────────────────────────────────────────────────────
-async function selectAnswer(idx) {
-  if(selectedAnswer!==null)return;
-  selectedAnswer=idx;
-  const grid=document.getElementById('player-answers-grid');
-  grid.style.pointerEvents='none';
-  [0,1,2,3].forEach(i=>{ if(i!==idx) grid.children[i].style.opacity='0.3'; });
-  grid.children[idx].style.border='3px solid #fff';
-
-  const room = await dbGet(`rooms/${roomCode}`);
-  const count = (room.answersCount || 0) + 1;
-  await dbUpdate(`rooms/${roomCode}`, { answersCount: count });
-  await dbSet(`rooms/${roomCode}/submittedAnswers/${myId}`, { answer: idx, timeUsed: timePerQ - timeLeft });
+async function selectAnswer(idx){
+  if(selectedAnswer!==null)return;selectedAnswer=idx;
+  const grid=document.getElementById('player-answers-grid');grid.style.pointerEvents='none';
+  [0,1,2,3].forEach(i=>{if(i!==idx)grid.children[i].style.opacity='0.35';});
+  grid.children[idx].style.border='3px solid rgba(255,255,255,.9)';
+  const room=await dbGet(`rooms/${roomCode}`);const count=(room.answersCount||0)+1;
+  await dbUpdate(`rooms/${roomCode}`,{answersCount:count});
+  await dbSet(`rooms/${roomCode}/submittedAnswers/${myId}`,{answer:idx,timeUsed:timePerQ-timeLeft});
 }
 
-// ─── END QUESTION ─────────────────────────────────────────────────────────────
-async function endQuestion() {
-  clearInterval(timerInt);
-  const q=questions[currentQ];
-  if (isHost) {
+async function endQuestion(){
+  clearInterval(timerInt);const q=questions[currentQ];
+  if(isHost){
     dbStopListen(`rooms/${roomCode}/answersCount`);
-    const room = await dbGet(`rooms/${roomCode}`) || {};
-    const subs = room.submittedAnswers || {};
-    const players = room.players || {};
-
+    const room=await dbGet(`rooms/${roomCode}`)||{};const subs=room.submittedAnswers||{};const players=room.players||{};
     Object.keys(subs).forEach(pId=>{
-      if(players[pId] && subs[pId].answer===q.correct) {
-        const base = 1000;
-        const speedBonus = Math.round(((timePerQ - subs[pId].timeUsed)/timePerQ)*500);
-        players[pId].score = (players[pId].score || 0) + base + speedBonus;
+      if(players[pId]&&subs[pId].answer===q.correct){
+        const base=1000;const speedBonus=Math.round(((timePerQ-subs[pId].timeUsed)/timePerQ)*500);
+        players[pId].score=(players[pId].score||0)+base+speedBonus;
       }
     });
-
-    await dbUpdate(`rooms/${roomCode}`, { players, status: 'leaderboard' });
+    await dbUpdate(`rooms/${roomCode}`,{players,status:'leaderboard'});
     await dbDelete(`rooms/${roomCode}/submittedAnswers`);
-    showLeaderboard({players, currentQ, questions}, true);
+    showLeaderboard({players,currentQ,questions},true);
   } else {
-    const grid=document.getElementById('player-answers-grid');
-    grid.style.pointerEvents='none';
+    const grid=document.getElementById('player-answers-grid');grid.style.pointerEvents='none';
     [0,1,2,3].forEach(i=>{
-      if(i===q.correct) { grid.children[i].style.border='3px solid #2a9d8f'; grid.children[i].style.opacity='1'; }
-      else if(i===selectedAnswer) { grid.children[i].style.border='3px solid #e63946'; }
+      if(i===q.correct){grid.children[i].style.border='3px solid #22C55E';grid.children[i].style.opacity='1';}
+      else if(i===selectedAnswer){grid.children[i].style.border='3px solid #F05252';}
     });
     const fb=document.getElementById('player-feedback');
-    if(selectedAnswer===q.correct) {
-      fb.innerHTML=`<div class="feedback-banner feedback-correct">✨ Correct! +1000 pts</div>`;
-    } else if(selectedAnswer===null) {
-      fb.innerHTML=`<div class="feedback-banner feedback-wrong">⏳ Time's up! Correct was: ${q.answers[q.correct]}</div>`;
-    } else {
-      fb.innerHTML=`<div class="feedback-banner feedback-wrong">❌ Incorrect! Correct was: ${q.answers[q.correct]}</div>`;
-    }
+    if(selectedAnswer===q.correct){fb.innerHTML=`<div class="feedback-banner feedback-correct">✨ Correct! +1000 pts</div>`;}
+    else if(selectedAnswer===null){fb.innerHTML=`<div class="feedback-banner feedback-wrong">⏳ Time's up! Correct: ${q.answers[q.correct]}</div>`;}
+    else{fb.innerHTML=`<div class="feedback-banner feedback-wrong">❌ Wrong! Correct: ${q.answers[q.correct]}</div>`;}
   }
 }
 
-// ─── LEADERBOARD MID ──────────────────────────────────────────────────────────
-function showLeaderboard(room, hostMode) {
+const MEDALS=['🥇','🥈','🥉'];
+function showLeaderboard(room,hostMode){
   show('screen-leaderboard-mid');
-  const plist=room.players?Object.values(room.players):[];
-  plist.sort((a,b)=>b.score-a.score);
-
-  document.getElementById('lb-subtitle').textContent=`After Question ${room.currentQ+1}/${questions.length}`;
+  const plist=room.players?Object.values(room.players):[];plist.sort((a,b)=>b.score-a.score);
+  document.getElementById('lb-subtitle').textContent=`After Question ${(room.currentQ||0)+1} of ${questions.length}`;
   const wrap=document.getElementById('scoreboard-mid');
   wrap.innerHTML=plist.map((p,i)=>`
     <div class="score-row ${i===0?'top':''}">
-      <span class="rank">#${i+1}</span>
+      <span class="rank">${MEDALS[i]||`#${i+1}`}</span>
       <span class="score-name">${p.name}</span>
       <span class="score-pts">${p.score} pts</span>
     </div>`).join('');
-
-  const nextBtn=document.getElementById('next-q-btn');
-  const waitMsg=document.getElementById('lb-wait-msg');
-
-  if(hostMode) {
-    nextBtn.style.display='inline-block';
-    nextBtn.textContent=room.currentQ+1>=questions.length?'Finish Game 🏁':'Next question →';
-    waitMsg.textContent='You have control. Click above when ready.';
+  const nextBtn=document.getElementById('next-q-btn');const waitMsg=document.getElementById('lb-wait-msg');
+  if(hostMode){
+    nextBtn.style.display='inline-flex';
+    nextBtn.textContent=(room.currentQ||0)+1>=questions.length?'🏁 View Final Results':'Next Question →';
+    waitMsg.textContent='';
   } else {
-    nextBtn.style.display='none';
-    waitMsg.textContent='Waiting for host to proceed...';
+    nextBtn.style.display='none';waitMsg.textContent='Waiting for host to continue…';
   }
 }
 
-async function hostNextQuestion() {
-  if(currentQ+1>=questions.length) {
+async function hostNextQuestion(){
+  if(currentQ+1>=questions.length){
     await dbUpdate(`rooms/${roomCode}`,{status:'finished'});
-    const plist = await dbGet(`rooms/${roomCode}/players`);
-    showFinalResults(plist);
+    const plist=await dbGet(`rooms/${roomCode}/players`);showFinalResults(plist);
   } else {
-    const nq=currentQ+1;
-    await dbUpdate(`rooms/${roomCode}`,{status:'playing',currentQ:nq});
-    showQuestion(nq);
+    const nq=currentQ+1;await dbUpdate(`rooms/${roomCode}`,{status:'playing',currentQ:nq});showQuestion(nq);
   }
 }
 
-// ─── FINAL SCREEN ─────────────────────────────────────────────────────────────
-function showFinalResults(players) {
+function showFinalResults(players){
   show('screen-final');
-  dbStopAll();
-  const plist=players?Object.values(players):[];
-  plist.sort((a,b)=>b.score-a.score);
-
-  if(plist.length>0) {
-    document.getElementById('winner-name').textContent=`👑 ${plist[0].name} wins with ${plist[0].score} points!`;
-  } else {
-    document.getElementById('winner-name').textContent='No players entered.';
-  }
-
+  const plist=players?Object.values(players):[];plist.sort((a,b)=>b.score-a.score);
+  if(plist.length>0){document.getElementById('winner-name').textContent=`👑 ${plist[0].name} wins with ${plist[0].score} pts!`;}
+  else{document.getElementById('winner-name').textContent='No players.';}
   const wrap=document.getElementById('scoreboard-final');
   wrap.innerHTML=plist.map((p,i)=>`
     <div class="score-row ${i===0?'top':''}">
-      <span class="rank">#${i+1}</span>
+      <span class="rank">${MEDALS[i]||`#${i+1}`}</span>
       <span class="score-name">${p.name}</span>
       <span class="score-pts">${p.score} pts</span>
     </div>`).join('');
+  if(isHost){document.getElementById('final-reset-btn').style.display='inline-flex';document.getElementById('final-player-msg').style.display='none';}
+  else{document.getElementById('final-reset-btn').style.display='none';document.getElementById('final-player-msg').style.display='block';}
 }
 
-async function resetGame() {
-  if(isHost && roomCode) { await dbDelete(`rooms/${roomCode}`); }
-  dbStopAll();
-  roomCode=null; isHost=false; myId=null; myName=null; questions=[]; currentQ=0; selectedAnswer=null;
-  show('screen-home');
-}
+async function resetGame(){if(isHost&&roomCode){await dbDelete(`rooms/${roomCode}`);}resetLocalUI();}
+function resetLocalUI(){dbStopAll();roomCode=null;isHost=false;myId=null;myName=null;questions=[];currentQ=0;selectedAnswer=null;show('screen-home');}
 
-window.addEventListener('DOMContentLoaded', () => {
-  const p=new URLSearchParams(window.location.search);
-  const r=p.get('room'); if(r&&r.length===4) {
-    switchTab('join', document.querySelectorAll('.tab')[1]);
-    document.getElementById('join-code').value=r;
-  }
+window.addEventListener('DOMContentLoaded',()=>{
+  const p=new URLSearchParams(window.location.search);const r=p.get('room');
+  if(r&&r.length===4){switchTab('join',document.querySelectorAll('.tab')[1]);document.getElementById('join-code').value=r;}
 });
 </script>
 </body>

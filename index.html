@@ -545,7 +545,7 @@ html,body{height:100%;font-family:var(--font-b);background:var(--purple);overflo
 <script>
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
 const FB_URL='https://quiz-8016d-default-rtdb.asia-southeast1.firebasedatabase.app';
-const GROQ_KEY='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';
+const GROQ_KEY='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';
 const AVATARS=['🦁','🐯','🐸','🐼','🦊','🐻','🐮','🐷','🐙','🦄','🐉','🦅','🐬','🦋','🐺','🦝'];
 const COLORS=['#1368CE','#E21B3C','#FFA602','#26890C','#9B59B6','#EC4899','#14B8A6','#F97316'];
 const MEDALS=['🥇','🥈','🥉'];
@@ -702,7 +702,15 @@ async function hostGame(){
     if(!topic){err.textContent='Please enter a topic!';return;}
     document.getElementById('gen-topic').textContent=topic;show('screen-generating');
     try{qs=await generateQuestions(topic,document.getElementById('host-qcount').value,document.getElementById('host-difficulty').value,customKey);}
-    catch(e){show('screen-home');err.textContent='❌ '+(e.message||'Generation failed.');return;}
+    catch(e){
+      show('screen-home');
+      if (e.message.includes('401')) {
+        err.textContent='❌ Invalid API Key. Please enter your own valid Groq API Key.';
+      } else {
+        err.textContent='❌ '+(e.message||'Generation failed.');
+      }
+      return;
+    }
   }
   questions=qs;timePerQ=tpq;isHost=true;roomCode=genCode();myId='host';myName='Host';
   await dbSet(`rooms/${roomCode}`,{status:'lobby',questions:qs,timePerQ:tpq,currentQ:0,gameMode,createdAt:Date.now()});

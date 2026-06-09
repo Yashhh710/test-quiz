@@ -575,12 +575,19 @@ function soundPop(){playTone(600,'sine',.05,.2);}
 function soundReaction(){playTone(800,'sine',.1,.15);playTone(1200,'sine',.1,.15,.1);}
 function soundKick(){playTone(150,'sawtooth',.3,.3);playTone(100,'sawtooth',.4,.3,.3);}
 function speakText(text) {
+  if (isHost) return;
   if (!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'en-US';
   window.speechSynthesis.speak(u);
 }
+function soundClick(){playTone(400,'sine',.05,.1);}
+document.addEventListener('click', (e) => {
+  if(e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+    soundClick();
+  }
+});
 
 // ─── FIREBASE ─────────────────────────────────────────────────────────────────
 async function dbSet(p,v){await fetch(`${FB_URL}/${p}.json`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(v)});}
